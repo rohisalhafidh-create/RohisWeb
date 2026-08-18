@@ -156,15 +156,10 @@ export default function Dashboard() {
                 >
                   Daftar Sekarang
                 </a>
-                <a
-                  href="https://chat.whatsapp.com/EG8Qf6WAW0WEwFafDie3CD?s=sw&p=a&ilr=4&amv=2"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full transition-colors text-center shadow-lg shadow-green-500/30"
-                >
-                  Join Grup WA
-                </a>
               </div>
+              <p className="mt-4 text-sm text-slate-300">
+                Isi formulir terlebih dahulu, lalu setelah pendaftaran selesai Anda akan diarahkan ke grup WhatsApp.
+              </p>
             </div>
             
             <div className="relative h-full min-h-[400px] bg-blue-950/50 flex items-center justify-center p-8 lg:p-12 overflow-hidden">
