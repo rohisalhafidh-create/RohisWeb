@@ -9,18 +9,22 @@ export default function AdminLogin() {
   const navigate = useNavigate();
   const [error, setError] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   if (loading) return null;
   if (user) return <Navigate to="/admin" replace />;
 
-  const handleLogin = async () => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsLoggingIn(true);
     setError('');
     try {
-      await login();
+      await login(email, password);
       navigate('/admin');
-    } catch (e: any) {
-      setError(e.message || 'Login failed');
+    } catch (err: any) {
+      setError(err.message || 'Login failed');
     } finally {
       setIsLoggingIn(false);
     }
@@ -50,22 +54,42 @@ export default function AdminLogin() {
           </div>
         )}
 
-        <button
-          onClick={handleLogin}
-          disabled={isLoggingIn}
-          className="w-full flex items-center justify-center gap-3 bg-slate-900 text-white py-3.5 px-4 rounded-xl hover:bg-slate-800 transition-all font-medium disabled:opacity-70 disabled:cursor-not-allowed shadow-md shadow-slate-900/10"
-        >
-          {isLoggingIn ? (
-            <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-          ) : (
-            <LogIn size={20} />
-          )}
-          Login dengan Akun Google
-        </button>
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email Admin"
+              className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none text-left"
+            />
+          </div>
+          <div>
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none text-left"
+            />
+          </div>
 
-        <p className="mt-6 text-xs text-slate-400">
-          Pastikan Anda menggunakan akun yang telah didaftarkan sebagai Admin.
-        </p>
+          <button
+            type="submit"
+            disabled={isLoggingIn}
+            className="w-full flex items-center justify-center gap-3 bg-slate-900 text-white py-3.5 px-4 rounded-xl hover:bg-slate-800 transition-all font-medium disabled:opacity-70 disabled:cursor-not-allowed shadow-md shadow-slate-900/10 mt-2"
+          >
+            {isLoggingIn ? (
+              <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <LogIn size={20} />
+            )}
+            Login Admin
+          </button>
+        </form>
+
       </motion.div>
     </div>
   );
