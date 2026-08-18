@@ -1,11 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
-import { auth, googleAuthProvider } from './firebase';
 
 interface AuthContextType {
-  user: User | null;
+  user: any | null;
   loading: boolean;
-  login: () => Promise<void>;
+  login: (email?: string, password?: string) => Promise<void>;
   logout: () => Promise<void>;
   getToken: () => Promise<string | null>;
 }
@@ -19,33 +17,35 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (u) => {
-      setUser(u);
-      setLoading(false);
-    });
-    return () => unsubscribe();
+    const token = localStorage.getItem('admin_token');
+    if (token === 'ROHIS_ADMIN_SECRET_TOKEN') {
+      setUser({ email: 'rohisalhafidh@gmail.com' });
+    } else {
+      setUser(null);
+    }
+    setLoading(false);
   }, []);
 
-  const login = async () => {
-    try {
-      await signInWithPopup(auth, googleAuthProvider);
-    } catch (e) {
-      console.error(e);
-      throw e;
+  const login = async (email?: string, password?: string) => {
+    if (email === 'rohisalhafidh@gmail.com' && password === 'rohisstemsasmg2026') {
+      localStorage.setItem('admin_token', 'ROHIS_ADMIN_SECRET_TOKEN');
+      setUser({ email: 'rohisalhafidh@gmail.com' });
+    } else {
+      throw new Error('Email atau password salah');
     }
   };
 
   const logout = async () => {
-    await signOut(auth);
+    localStorage.removeItem('admin_token');
+    setUser(null);
   };
 
   const getToken = async () => {
-    if (!user) return null;
-    return await user.getIdToken();
+    return localStorage.getItem('admin_token');
   };
 
   return (
