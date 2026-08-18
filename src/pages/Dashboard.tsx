@@ -148,7 +148,15 @@ export default function Dashboard() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <a href="#" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-full transition-colors text-center shadow-lg shadow-blue-500/30">
+                <a
+                  href="https://docs.google.com/forms/d/e/1FAIpQLSdI6wjUMi3tLhjt0tb63nsd0bcLyWXSIilyaNp-XjYlvix7bQ/viewform?usp=header"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => {
+                    window.open('https://chat.whatsapp.com/EG8Qf6WAW0WEwFafDie3CD?s=sw&p=a&ilr=4&amv=2', '_blank', 'noopener,noreferrer');
+                  }}
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-full transition-colors text-center shadow-lg shadow-blue-500/30"
+                >
                   Daftar Sekarang
                 </a>
               </div>
