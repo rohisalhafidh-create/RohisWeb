@@ -157,9 +157,6 @@ export default function Dashboard() {
                   Daftar Sekarang
                 </a>
               </div>
-              <p className="mt-4 text-sm text-slate-300">
-                Isi formulir terlebih dahulu, lalu setelah pendaftaran selesai Anda akan diarahkan ke grup WhatsApp.
-              </p>
             </div>
             
             <div className="relative h-full min-h-[400px] bg-blue-950/50 flex items-center justify-center p-8 lg:p-12 overflow-hidden">
