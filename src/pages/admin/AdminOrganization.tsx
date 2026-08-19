@@ -65,8 +65,8 @@ export default function AdminOrganization() {
       }
       setIsModalOpen(false);
       loadData();
-    } catch (error) {
-      console.error("Gagal menyimpan data", error); alert(error.message || error);
+    } catch (error: any) {
+      console.error("Gagal menyimpan data", error); alert(error.message || String(error));
     }
   };
 
@@ -150,6 +150,19 @@ export default function AdminOrganization() {
                     <select required value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full border rounded-xl px-4 py-2">
                       {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm text-slate-700 mb-1">Gender</label>
+                    <select required value={formData.gender} onChange={e => setFormData({...formData, gender: e.target.value})} className="w-full border rounded-xl px-4 py-2">
+                      <option value="Laki-laki">Laki-laki</option>
+                      <option value="Perempuan">Perempuan</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-slate-700 mb-1">Urutan Tampil</label>
+                    <input type="number" value={formData.sortOrder} onChange={e => setFormData({...formData, sortOrder: parseInt(e.target.value) || 0})} className="w-full border rounded-xl px-4 py-2" min="0" />
                   </div>
                 </div>
                 <div>

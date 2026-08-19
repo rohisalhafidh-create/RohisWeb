@@ -54,6 +54,7 @@ export default function Organization() {
           <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-green-500 rounded-full" />
         </h2>
         <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-${gridCols} gap-6 max-w-4xl mx-auto justify-center`}>
+          {/* @ts-expect-error React 19 key prop type */}
           {members.map(m => <MemberCard key={m.id} member={m} />)}
         </div>
       </div>
