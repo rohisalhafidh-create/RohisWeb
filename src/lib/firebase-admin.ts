@@ -4,19 +4,32 @@ import { getFirestore } from 'firebase-admin/firestore';
 
 const projectId = process.env.FIREBASE_PROJECT_ID || process.env.VITE_FIREBASE_PROJECT_ID || 'demo-project';
 
-if (!getApps().length) {
-  const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT
-    ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
-    : undefined;
+let serviceAccount;
+if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+  try {
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  } catch (error) {
+    console.error("Gagal membaca FIREBASE_SERVICE_ACCOUNT. Pastikan format JSON benar dan lengkap.", error);
+  }
+}
 
-  initializeApp(
-    serviceAccount
-      ? {
-          credential: cert(serviceAccount),
-          projectId,
-        }
-      : { projectId }
-  );
+if (!getApps().length) {
+  try {
+    initializeApp(
+      serviceAccount
+        ? {
+            credential: cert(serviceAccount),
+            projectId,
+          }
+        : { projectId }
+    );
+  } catch (error) {
+    console.error("Firebase Admin initialization error:", error);
+    // Fallback so getFirestore() doesn't throw
+    try {
+      initializeApp({ projectId: 'demo-project' });
+    } catch (e) {}
+  }
 }
 
 export const adminAuth = getAuth();
