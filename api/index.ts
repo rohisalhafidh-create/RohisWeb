@@ -1,8 +1,8 @@
 import 'dotenv/config';
 import express from "express";
 import cors from "cors";
-import { requireAuth, AuthRequest } from "../src/middleware/auth.ts";
-import { firestore } from "../src/lib/firebase-admin.ts";
+import { requireAuth, AuthRequest } from "../src/middleware/auth";
+import { firestore } from "../src/lib/firebase-admin";
 import { Timestamp } from 'firebase-admin/firestore';
 
 const app = express();
