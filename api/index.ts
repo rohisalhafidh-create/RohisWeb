@@ -7,6 +7,20 @@ import { Timestamp } from 'firebase-admin/firestore';
 
 let app: any;
 
+export async function seedDatabase(): Promise<void> {
+  const settingsRef = firestore.collection('site_settings');
+  const settingsDoc = await settingsRef.doc('default').get();
+  if (!settingsDoc.exists) {
+    const now = Timestamp.now();
+    await settingsRef.doc('default').set({
+      siteName: 'RohisWeb',
+      description: 'Website Rohani Islam sekolah',
+      createdAt: now,
+      updatedAt: now,
+    });
+  }
+}
+
 try {
   app = express();
   app.use(cors());
