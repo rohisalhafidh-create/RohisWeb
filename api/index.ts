@@ -29,6 +29,13 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
+app.get('/api/health', (_req, res) => {
+  res.json({
+    ok: true,
+    databaseConfigured: Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY),
+  });
+});
+
 app.get('/api/activities', async (_req, res) => {
   try {
     const { data, error } = await database().from('activities').select('*').order('date', { ascending: false });
@@ -184,4 +191,6 @@ app.delete('/api/organization/:id', requireAuth, async (req: AuthRequest, res) =
   } catch (error) { res.status(500).json({ error: 'Failed to delete member', details: message(error) }); }
 });
 
-export default app;
+export default function handler(req: express.Request, res: express.Response) {
+  return app(req, res);
+}
