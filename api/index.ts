@@ -16,6 +16,7 @@ function database() {
 function message(error: unknown) { return error instanceof Error ? error.message : String(error); }
 
 export async function seedDatabase() {
+  if (!supabase) return;
   const client = database();
   const { data, error } = await client.from('site_settings').select('id').eq('id', 'default').maybeSingle();
   if (error) throw error;

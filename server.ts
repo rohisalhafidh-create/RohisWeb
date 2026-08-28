@@ -15,8 +15,11 @@ async function startServer() {
     console.error("Error seeding database:", err);
   }
 
-  // Gunakan routes dari Serverless API
-  app.use(apiApp);
+  // Gunakan routes API hanya untuk request /api agar Vite dapat melayani SPA.
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api')) return apiApp(req, res);
+    next();
+  });
 
   // Vite middleware untuk local development frontend
   if (process.env.NODE_ENV !== "production") {
@@ -25,6 +28,15 @@ async function startServer() {
       appType: "spa",
     });
     app.use(vite.middlewares);
+    app.use(async (req, res, next) => {
+      if (req.path.startsWith('/api/')) return next();
+      try {
+        const template = await vite.transformIndexHtml(req.originalUrl, await import('fs/promises').then(fs => fs.readFile(path.resolve('index.html'), 'utf-8')));
+        res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
+      } catch (error) {
+        next(error);
+      }
+    });
   } else {
     // Mode build lokal
     const distPath = path.join(process.cwd(), 'dist');
