@@ -70,9 +70,11 @@ export default function Achievements() {
                     className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-6 items-start"
                   >
                     {ach.imageUrl ? (
-                      <img src={ach.imageUrl} alt={ach.title} className="w-full md:w-48 h-32 object-cover rounded-xl bg-slate-50" />
+                      <div className="w-full md:w-56 shrink-0 overflow-hidden rounded-xl bg-slate-50">
+                        <img src={ach.imageUrl} alt={ach.title} className="w-full h-auto max-h-[280px] md:max-h-[180px] object-contain rounded-xl bg-slate-50" />
+                      </div>
                     ) : (
-                      <div className="w-full md:w-48 h-32 bg-amber-50 rounded-xl flex items-center justify-center text-amber-300">
+                      <div className="w-full md:w-56 h-32 bg-amber-50 rounded-xl flex items-center justify-center text-amber-300">
                         <Award size={48} />
                       </div>
                     )}
