@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useApi } from '../hooks/useApi';
-import { Activity, Award, Users } from 'lucide-react';
+import { Activity, Award, Instagram, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Dashboard() {
@@ -57,15 +57,17 @@ export default function Dashboard() {
               {settings?.schoolName || 'SMKN 1 SEMARANG'}
             </h2>
             <p className="text-lg lg:text-xl text-slate-300 max-w-2xl mx-auto font-light leading-relaxed">
-              "{settings?.tagline || 'Menebarkan Dakwah, Menjalin Ukhuwah, Menumbuhkan Generasi Islami, Berilmu, Berakhlak, dan Berprestasi.'}"
+              "{settings?.tagline || 'Semangat Berdakwah, Menjalani Ukhuwah'}"
             </p>
             <a
               href="https://www.instagram.com/rohisalhafidh?igsi=NG9oanVmN3M5NHM5"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-6 inline-flex items-center justify-center rounded-full border border-green-400/60 bg-white/5 px-5 py-2.5 text-sm font-semibold text-green-200 transition hover:bg-green-400/10 hover:text-white"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#405DE6] via-[#C13584] to-[#F56040] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-pink-500/20 transition-transform duration-200 hover:scale-[1.02]"
+              aria-label="Kunjungi Instagram Rohis Al Hafidh"
             >
-              Instagram: @rohisalhafidh
+              <Instagram size={18} className="fill-current" />
+              <span>@rohisalhafidh</span>
             </a>
           </motion.div>
         </div>
