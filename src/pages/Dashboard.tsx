@@ -57,8 +57,16 @@ export default function Dashboard() {
               {settings?.schoolName || 'SMKN 1 SEMARANG'}
             </h2>
             <p className="text-lg lg:text-xl text-slate-300 max-w-2xl mx-auto font-light leading-relaxed">
-              "{settings?.tagline || 'Menumbuhkan Generasi Islami, Berilmu, Berakhlak, dan Berprestasi.'}"
+              "{settings?.tagline || 'Menebarkan Dakwah, Menjalin Ukhuwah, Menumbuhkan Generasi Islami, Berilmu, Berakhlak, dan Berprestasi.'}"
             </p>
+            <a
+              href="https://www.instagram.com/rohisalhafidh?igsi=NG9oanVmN3M5NHM5"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-6 inline-flex items-center justify-center rounded-full border border-green-400/60 bg-white/5 px-5 py-2.5 text-sm font-semibold text-green-200 transition hover:bg-green-400/10 hover:text-white"
+            >
+              Instagram: @rohisalhafidh
+            </a>
           </motion.div>
         </div>
       </section>
@@ -167,15 +175,16 @@ export default function Dashboard() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
-                className="relative z-10 w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl border-4 border-white/10 rotate-2 hover:rotate-0 transition-transform duration-300 bg-slate-800"
+                className="relative z-10 w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl border-4 border-white/10 rotate-2 hover:rotate-0 transition-transform duration-300 bg-white"
               >
                 <img 
                   src="/image.png" 
                   alt="Poster Open Rekrutmen Rohis" 
-                  className="w-full h-auto object-cover"
+                  className="w-full h-full max-h-[560px] object-contain bg-white"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.src = "https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&q=80&w=800";
+                    target.className = "w-full h-full object-cover";
                   }}
                 />
               </motion.div>
