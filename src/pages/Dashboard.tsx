@@ -181,16 +181,16 @@ export default function Dashboard() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
-                className="relative z-10 w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl border-4 border-white/10 rotate-2 hover:rotate-0 transition-transform duration-300 bg-white"
+                className="relative z-10 w-full max-w-[92vw] sm:max-w-sm rounded-2xl overflow-hidden shadow-2xl border-4 border-white/10 rotate-0 sm:rotate-2 hover:rotate-0 transition-transform duration-300 bg-white"
               >
                 <img 
                   src="/image.png" 
                   alt="Poster Open Rekrutmen Rohis" 
-                  className="w-full h-full max-h-[560px] object-contain bg-white"
+                  className="block w-full h-auto max-h-[70vh] sm:max-h-[560px] object-contain bg-white"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.src = "https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&q=80&w=800";
-                    target.className = "w-full h-full object-cover";
+                    target.className = "block w-full h-auto max-h-[70vh] sm:max-h-[560px] object-cover bg-white";
                   }}
                 />
               </motion.div>
