@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useApi } from '../hooks/useApi';
-import { Activity, Award, Instagram, Users } from 'lucide-react';
+import { Activity, Award, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Dashboard() {
@@ -63,10 +63,14 @@ export default function Dashboard() {
               href="https://www.instagram.com/rohisalhafidh?igsi=NG9oanVmN3M5NHM5"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#405DE6] via-[#C13584] to-[#F56040] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-pink-500/20 transition-transform duration-200 hover:scale-[1.02]"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#405DE6] via-[#C13584] to-[#F56040] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-pink-500/20 transition-transform duration-200 hover:scale-[1.02]"
               aria-label="Kunjungi Instagram Rohis Al Hafidh"
             >
-              <Instagram size={18} className="fill-current" />
+              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-current text-white drop-shadow-sm">
+                <rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" strokeWidth="1.8" />
+                <circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+                <circle cx="17.2" cy="6.8" r="1.2" fill="currentColor" />
+              </svg>
               <span>@rohisalhafidh</span>
             </a>
           </motion.div>
