@@ -67,14 +67,14 @@ export default function Achievements() {
                     viewport={{ once: true }}
                     transition={{ delay: idx * 0.1 }}
                     key={ach.id}
-                    className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-6 items-start"
+                    className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-4 sm:gap-6 items-start"
                   >
                     {ach.imageUrl ? (
-                      <div className="w-full md:w-56 shrink-0 overflow-hidden rounded-xl bg-slate-50">
-                        <img src={ach.imageUrl} alt={ach.title} className="w-full h-auto max-h-[280px] md:max-h-[180px] object-contain rounded-xl bg-slate-50" />
+                      <div className="w-full md:w-auto max-w-full shrink-0 overflow-hidden rounded-xl bg-slate-50 self-stretch md:self-auto">
+                        <img src={ach.imageUrl} alt={ach.title} className="block w-full md:w-[220px] h-auto md:h-[180px] object-cover rounded-xl bg-slate-50" />
                       </div>
                     ) : (
-                      <div className="w-full md:w-56 h-32 bg-amber-50 rounded-xl flex items-center justify-center text-amber-300">
+                      <div className="w-full md:w-[220px] h-[180px] bg-amber-50 rounded-xl flex items-center justify-center text-amber-300">
                         <Award size={48} />
                       </div>
                     )}
