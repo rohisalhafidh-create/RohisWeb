@@ -3,6 +3,7 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Menu, X, Home, Image as ImageIcon, Award, Users, LogIn } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Chatbot } from '../components/Chatbot';
 
 const NAV_ITEMS = [
   { label: 'Dashboard', path: '/', icon: Home },
@@ -137,6 +138,8 @@ export const PublicLayout = () => {
           </div>
         </footer>
       </main>
+
+      <Chatbot />
     </div>
   );
 };
