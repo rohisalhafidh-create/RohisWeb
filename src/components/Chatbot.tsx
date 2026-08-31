@@ -9,11 +9,11 @@ interface Message {
 }
 
 const MODELS = [
-  { id: 'openrouter/free', name: 'Auto Best Free (OpenRouter)', provider: 'openrouter' },
-  { id: 'google/gemma-4-26b-a4b-it:free', name: 'Gemma 4 26B (OpenRouter)', provider: 'openrouter' },
-  { id: 'nvidia/nemotron-3-super-120b-a12b:free', name: 'Nemotron 3 Super (OpenRouter)', provider: 'openrouter' },
-  { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini (OpenRouter)', provider: 'openrouter' },
-  { id: 'gemini-3.5-flash', name: 'Gemini 3.5 Flash (Google AI Studio)', provider: 'google' }
+  { id: 'openrouter/free', name: 'Auto Best Free', provider: 'openrouter' },
+  { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini', provider: 'openrouter' },
+  { id: 'gemini-3.5-flash', name: 'Gemini 3.5 Flash', provider: 'google' },
+  { id: 'liquid/lfm-2.5-2.6b:free', name: 'Liquid LFM 2.5', provider: 'openrouter' },
+  { id: 'minimax/minimax-m3:free', name: 'Minimax M3', provider: 'openrouter' }
 ];
 
 const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || '';
