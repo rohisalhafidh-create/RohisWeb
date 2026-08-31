@@ -9,7 +9,7 @@ interface Message {
 }
 
 const MODELS = [
-  { id: 'openrouter/free', name: 'Auto Best Free', provider: 'openrouter' },
+  { id: 'nvidia/nemotron-3-ultra-550b-a55b:free', name: 'Nemotron 3 Ultra', provider: 'openrouter' },
   { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini', provider: 'openrouter' },
   { id: 'gemini-3.5-flash', name: 'Gemini 3.5 Flash', provider: 'google' },
   { id: 'liquid/lfm-2.5-2.6b:free', name: 'Liquid LFM 2.5', provider: 'openrouter' },
