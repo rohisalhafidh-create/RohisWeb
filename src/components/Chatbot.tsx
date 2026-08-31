@@ -9,7 +9,7 @@ interface Message {
 }
 
 const MODELS = [
-  { id: 'poolside/laguna-s-2.1:free', name: 'Laguna S 2.1', provider: 'openrouter' },
+  { id: 'nvidia/nemotron-3.5-lightning:free', name: 'Nemotron Lightning', provider: 'openrouter' },
   { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini', provider: 'openrouter' },
   { id: 'gemini-3.5-flash', name: 'Gemini 3.5 Flash', provider: 'google' },
   { id: 'liquid/lfm-2.5-2.6b:free', name: 'Liquid LFM 2.5', provider: 'openrouter' },
