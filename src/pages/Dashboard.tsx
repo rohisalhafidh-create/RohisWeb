@@ -156,7 +156,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <h4 className="font-bold">Periode Pendaftaran</h4>
-                    <p className="text-sm text-slate-400">17 Juli - 15 September</p>
+                    <p className="text-sm text-slate-400">1 Oktober - 10 November 2026</p>
                   </div>
                 </div>
               </div>
