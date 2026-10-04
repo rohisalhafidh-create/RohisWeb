@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import * as animeImport from 'animejs';
-const anime = (animeImport as any).default || animeImport;
+import anime from 'animejs';
 import { useApi } from '../hooks/useApi';
 import { Activity, Award, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
