@@ -4,159 +4,317 @@ import { useApi } from '../hooks/useApi';
 import { Activity, Award, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+// ── helper: animated number counter ──────────────────────────────────────────
+function animateCounter(el: HTMLElement, target: number, duration = 1500) {
+  const obj = { val: 0 };
+  anime({
+    targets: obj,
+    val: target,
+    round: 1,
+    duration,
+    easing: 'easeOutExpo',
+    update: () => { el.textContent = String(obj.val); }
+  });
+}
+
 export default function Dashboard() {
   const { fetchApi } = useApi();
   const [stats, setStats] = useState({ totalActivities: 0, totalAchievements: 0, totalMembers: 0 });
   const [activities, setActivities] = useState<any[]>([]);
   const [settings, setSettings] = useState<any>({});
+  const statsLoaded = useRef(false);
 
-  const heroRef = useRef<HTMLDivElement>(null);
-  const aboutLeftRef = useRef<HTMLDivElement>(null);
-  const aboutRightRef = useRef<HTMLDivElement>(null);
+  const heroRef        = useRef<HTMLDivElement>(null);
+  const logoRef        = useRef<HTMLDivElement>(null);
+  const canvasRef      = useRef<HTMLCanvasElement>(null);
+  const aboutLeftRef   = useRef<HTMLDivElement>(null);
+  const aboutRightRef  = useRef<HTMLDivElement>(null);
   const recruitmentRef = useRef<HTMLDivElement>(null);
-  const posterRef = useRef<HTMLDivElement>(null);
-  const activitiesRef = useRef<HTMLDivElement>(null);
+  const posterRef      = useRef<HTMLDivElement>(null);
+  const activitiesRef  = useRef<HTMLDivElement>(null);
+  const ctaRef         = useRef<HTMLDivElement>(null);
 
+  // ── fetch data ────────────────────────────────────────────────────────────
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [statsData, actData, achData, setData] = await Promise.all([
-          fetchApi('/stats'),
-          fetchApi('/activities'),
-          fetchApi('/achievements'),
-          fetchApi('/settings')
+        const [statsData, actData, _achData, setData] = await Promise.all([
+          fetchApi('/stats'), fetchApi('/activities'),
+          fetchApi('/achievements'), fetchApi('/settings')
         ]);
         setStats(statsData);
         setActivities(actData.slice(0, 3));
         setSettings(setData || {});
-      } catch (e) {
-        console.error("Failed to load dashboard data", e);
-      }
+      } catch (e) { console.error('Failed to load dashboard data', e); }
     };
     loadData();
   }, [fetchApi]);
 
+  // ── particle canvas ───────────────────────────────────────────────────────
   useEffect(() => {
-    // Initial setup (hide elements before animating)
-    if (aboutLeftRef.current) aboutLeftRef.current.style.opacity = '0';
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d')!;
+    let raf: number;
+
+    const resize = () => {
+      canvas.width  = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    const PARTICLE_COUNT = 55;
+    const particles = Array.from({ length: PARTICLE_COUNT }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.8 + 0.4,
+      speed: Math.random() * 0.4 + 0.1,
+      angle: Math.random() * Math.PI * 2,
+      opacity: Math.random() * 0.5 + 0.2,
+    }));
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.x += Math.cos(p.angle) * p.speed;
+        p.y += Math.sin(p.angle) * p.speed;
+        p.angle += (Math.random() - 0.5) * 0.04;
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(134,239,172,${p.opacity})`;
+        ctx.fill();
+      });
+      raf = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize); };
+  }, []);
+
+  // ── main animations ───────────────────────────────────────────────────────
+  useEffect(() => {
+    // hide before animate
+    const hide = (sel: string) =>
+      document.querySelectorAll<HTMLElement>(sel).forEach(el => { el.style.opacity = '0'; });
+    hide('.about-stat-card');
+    hide('.activity-card');
+    hide('.cta-block');
+    if (aboutLeftRef.current)   aboutLeftRef.current.style.opacity   = '0';
     if (recruitmentRef.current) recruitmentRef.current.style.opacity = '0';
-    if (posterRef.current) posterRef.current.style.opacity = '0';
+    if (posterRef.current)      posterRef.current.style.opacity      = '0';
 
-    const actCards = document.querySelectorAll('.activity-card');
-    actCards.forEach(card => (card as HTMLElement).style.opacity = '0');
-    const statCards = document.querySelectorAll('.about-stat-card');
-    statCards.forEach(card => (card as HTMLElement).style.opacity = '0');
+    // ── Hero: split title into letters ──────────────────────────────────────
+    const titleEl = document.querySelector<HTMLElement>('.hero-title');
+    if (titleEl) {
+      const text = titleEl.textContent || '';
+      titleEl.innerHTML = text.split('').map(ch =>
+        ch === ' '
+          ? '<span style="display:inline-block;width:.35em"> </span>'
+          : `<span class="hero-letter" style="display:inline-block;opacity:0;transform:translateY(40px)">${ch}</span>`
+      ).join('');
+    }
 
-    // Hero Stagger Animation
+    // ── Hero entrance timeline ──────────────────────────────────────────────
+    const tl = anime.timeline({ easing: 'easeOutExpo' });
+    tl
+      .add({ targets: '.hero-logo',     opacity: [0,1], scale: [0.5,1], duration: 700 })
+      .add({ targets: '.hero-letter',   opacity: [0,1], translateY: [40,0], delay: anime.stagger(45), duration: 600 }, '-=200')
+      .add({ targets: '.hero-subtitle', opacity: [0,1], translateY: [20,0], duration: 600 }, '-=300')
+      .add({ targets: '.hero-tagline',  opacity: [0,1], translateY: [20,0], duration: 600 }, '-=400')
+      .add({ targets: '.hero-ig',       opacity: [0,1], scale: [0.8,1], duration: 500 }, '-=300');
+
+    // ── Logo glow pulse ─────────────────────────────────────────────────────
     anime({
-      targets: '.hero-anim-item',
-      opacity: [0, 1],
-      translateY: [30, 0],
-      delay: anime.stagger(150),
-      duration: 1200,
-      easing: 'easeOutElastic(1, .8)'
+      targets: logoRef.current,
+      boxShadow: [
+        '0 0 0px 0px rgba(74,222,128,0)',
+        '0 0 24px 8px rgba(74,222,128,0.5)',
+        '0 0 0px 0px rgba(74,222,128,0)',
+      ],
+      duration: 2800,
+      loop: true,
+      easing: 'easeInOutSine',
+      delay: 1200,
     });
 
-    const observer = new IntersectionObserver((entries) => {
+    // ── Moving gradient orbs ────────────────────────────────────────────────
+    anime({
+      targets: '.hero-orb-1',
+      translateX: ['0%', '8%', '-5%', '0%'],
+      translateY: ['0%', '-10%', '5%', '0%'],
+      duration: 8000,
+      loop: true,
+      easing: 'easeInOutQuad',
+    });
+    anime({
+      targets: '.hero-orb-2',
+      translateX: ['0%', '-8%', '5%', '0%'],
+      translateY: ['0%', '10%', '-5%', '0%'],
+      duration: 10000,
+      loop: true,
+      easing: 'easeInOutQuad',
+    });
+
+    // ── Scroll-triggered sections ────────────────────────────────────────────
+    const io = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          if (entry.target === aboutLeftRef.current) {
-            anime({
-              targets: aboutLeftRef.current,
-              opacity: [0, 1],
-              translateX: [-40, 0],
-              duration: 800,
-              easing: 'easeOutCubic'
-            });
-          }
-          if (entry.target === aboutRightRef.current) {
-            anime({
-              targets: '.about-stat-card',
-              opacity: [0, 1],
-              scale: [0.8, 1],
-              delay: anime.stagger(150),
-              duration: 800,
-              easing: 'easeOutBack'
-            });
-          }
-          if (entry.target === recruitmentRef.current) {
-             anime({
-              targets: recruitmentRef.current,
-              opacity: [0, 1],
-              translateY: [40, 0],
-              duration: 800,
-              easing: 'easeOutQuart'
-            });
-          }
-          if (entry.target === posterRef.current) {
-            anime({
-              targets: posterRef.current,
-              rotate: [10, 0],
-              opacity: [0, 1],
-              scale: [0.8, 1],
-              duration: 1200,
-              easing: 'easeOutElastic(1, .8)',
-              complete: () => {
-                // Floating animation after initial pop-in
-                anime({
-                  targets: posterRef.current,
-                  translateY: [-8, 8],
-                  direction: 'alternate',
-                  loop: true,
-                  easing: 'easeInOutSine',
-                  duration: 2500
-                });
-              }
-            });
-          }
-          if (entry.target === activitiesRef.current) {
-            anime({
-              targets: '.activity-card',
-              opacity: [0, 1],
-              translateY: [40, 0],
-              delay: anime.stagger(150),
-              duration: 800,
-              easing: 'easeOutQuart'
-            });
-          }
-          observer.unobserve(entry.target);
+        if (!entry.isIntersecting) return;
+
+        // About left text
+        if (entry.target === aboutLeftRef.current) {
+          anime({
+            targets: aboutLeftRef.current,
+            opacity: [0, 1], translateX: [-60, 0],
+            duration: 900, easing: 'easeOutCubic'
+          });
         }
+
+        // Stat cards with counter
+        if (entry.target === aboutRightRef.current) {
+          anime({
+            targets: '.about-stat-card',
+            opacity: [0, 1], scale: [0.7, 1], rotate: ['-5deg', '0deg'],
+            delay: anime.stagger(150), duration: 900, easing: 'easeOutBack(1.5)'
+          });
+          // wait a bit then count
+          setTimeout(() => {
+            const els = document.querySelectorAll<HTMLElement>('.stat-number');
+            const vals = [stats.totalActivities, stats.totalAchievements, stats.totalMembers];
+            els.forEach((el, i) => animateCounter(el, vals[i]));
+          }, 600);
+        }
+
+        // Recruitment text
+        if (entry.target === recruitmentRef.current) {
+          const tl2 = anime.timeline({ easing: 'easeOutQuart' });
+          tl2
+            .add({ targets: '.recruit-badge',  opacity: [0,1], translateY: [-20,0], duration: 500 })
+            .add({ targets: '.recruit-title',  opacity: [0,1], translateX: [-40,0], duration: 600 }, '-=200')
+            .add({ targets: '.recruit-body',   opacity: [0,1], translateY: [20,0],  duration: 600 }, '-=300')
+            .add({ targets: '.recruit-items',  opacity: [0,1], translateX: [-20,0], delay: anime.stagger(150), duration: 500 }, '-=300')
+            .add({ targets: '.recruit-btn',    opacity: [0,1], scale: [0.8,1], duration: 500, easing: 'easeOutBack' }, '-=200');
+        }
+
+        // Poster pop + float
+        if (entry.target === posterRef.current) {
+          anime({
+            targets: posterRef.current,
+            opacity: [0, 1], scale: [0.6, 1], rotate: ['12deg', '2deg'],
+            duration: 1400, easing: 'easeOutElastic(1, .7)',
+            complete: () => {
+              anime({
+                targets: posterRef.current,
+                translateY: [-10, 10], rotate: ['2deg', '-1deg'],
+                direction: 'alternate', loop: true,
+                easing: 'easeInOutSine', duration: 3000
+              });
+            }
+          });
+        }
+
+        // Activity cards
+        if (entry.target === activitiesRef.current) {
+          anime({
+            targets: '.activity-card',
+            opacity: [0, 1], translateY: [60, 0], scale: [0.9, 1],
+            delay: anime.stagger(180), duration: 800, easing: 'easeOutBack'
+          });
+        }
+
+        // CTA block
+        if (entry.target === ctaRef.current) {
+          anime({
+            targets: '.cta-block',
+            opacity: [0, 1], translateY: [50, 0], scale: [0.95, 1],
+            duration: 900, easing: 'easeOutQuart'
+          });
+          // floating icon
+          anime({
+            targets: '.cta-icon',
+            translateY: [-6, 6],
+            direction: 'alternate', loop: true,
+            easing: 'easeInOutSine', duration: 1800,
+            delay: 900
+          });
+        }
+
+        io.unobserve(entry.target);
       });
     }, { threshold: 0.1 });
 
-    const refs = [aboutLeftRef, aboutRightRef, recruitmentRef, posterRef, activitiesRef];
-    refs.forEach(r => r.current && observer.observe(r.current));
+    [aboutLeftRef, aboutRightRef, recruitmentRef, posterRef, activitiesRef, ctaRef]
+      .forEach(r => r.current && io.observe(r.current));
 
-    return () => observer.disconnect();
-  }, [activities]); // trigger on load and when fetched
+    return () => io.disconnect();
+  }, [activities, stats]);
+
+  // ── ripple on button click ────────────────────────────────────────────────
+  const handleRipple = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const btn = e.currentTarget;
+    const circle = document.createElement('span');
+    const d = Math.max(btn.clientWidth, btn.clientHeight);
+    const rect = btn.getBoundingClientRect();
+    circle.style.cssText = `
+      position:absolute;width:${d}px;height:${d}px;border-radius:50%;
+      background:rgba(255,255,255,0.35);
+      left:${e.clientX - rect.left - d/2}px;
+      top:${e.clientY - rect.top  - d/2}px;
+      pointer-events:none;transform:scale(0);opacity:1;
+    `;
+    btn.appendChild(circle);
+    anime({
+      targets: circle, scale: [0, 2.5], opacity: [1, 0],
+      duration: 600, easing: 'easeOutQuad',
+      complete: () => circle.remove()
+    });
+  };
 
   return (
     <div className="pb-12">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-slate-900 text-white rounded-3xl mx-4 lg:mx-8 mt-6" ref={heroRef}>
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-b from-green-500/20 to-transparent rounded-full blur-3xl" />
-          <div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-t from-emerald-500/20 to-transparent rounded-full blur-3xl" />
-        </div>
-        
-        <div className="relative px-8 py-20 lg:py-24 text-center max-w-4xl mx-auto flex flex-col items-center">
-          <div className="hero-anim-item w-20 h-20 bg-white backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center shadow-xl mb-8 mx-auto overflow-hidden p-2 opacity-0">
-            <img src="/logo.png" alt="Logo Rohis" className="w-full h-full object-contain drop-shadow-md" onError={(e) => { e.currentTarget.src = "https://ui-avatars.com/api/?name=RA&background=ecfdf5&color=059669" }} />
+
+      {/* ── Hero ──────────────────────────────────────────────────────────── */}
+      <section ref={heroRef} className="relative overflow-hidden bg-slate-900 text-white rounded-3xl mx-4 lg:mx-8 mt-6">
+
+        {/* animated canvas particles */}
+        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-0" />
+
+        {/* moving orbs */}
+        <div className="hero-orb-1 absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-b from-green-500/25 to-transparent rounded-full blur-3xl" />
+        <div className="hero-orb-2 absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-t from-emerald-500/25 to-transparent rounded-full blur-3xl" />
+
+        <div className="relative z-10 px-8 py-20 lg:py-24 text-center max-w-4xl mx-auto flex flex-col items-center">
+          {/* Logo */}
+          <div ref={logoRef} className="hero-logo w-20 h-20 bg-white rounded-2xl flex items-center justify-center shadow-xl mb-8 mx-auto overflow-hidden p-2 opacity-0">
+            <img
+              src="/logo.png" alt="Logo Rohis"
+              className="w-full h-full object-contain drop-shadow-md"
+              onError={e => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=RA&background=ecfdf5&color=059669'; }}
+            />
           </div>
-          <h1 className="hero-anim-item text-4xl lg:text-6xl font-bold mb-4 tracking-tight opacity-0">
+
+          {/* Title — will be split into letters by JS */}
+          <h1 className="hero-title text-4xl lg:text-6xl font-bold mb-4 tracking-tight">
             ROHIS AL HAFIDH
           </h1>
-          <h2 className="hero-anim-item text-2xl lg:text-3xl text-green-400 font-medium mb-8 opacity-0">
+
+          <h2 className="hero-subtitle text-2xl lg:text-3xl text-green-400 font-medium mb-8 opacity-0">
             {settings?.schoolName || 'SMKN 1 SEMARANG'}
           </h2>
-          <p className="hero-anim-item text-lg lg:text-xl text-slate-300 max-w-2xl mx-auto font-light leading-relaxed opacity-0">
+          <p className="hero-tagline text-lg lg:text-xl text-slate-300 max-w-2xl mx-auto font-light leading-relaxed opacity-0">
             "{settings?.tagline || 'Semangat Berdakwah, Menjalani Ukhuwah'}"
           </p>
+
           <a
             href="https://www.instagram.com/rohisalhafidh?igsi=NG9oanVmN3M5NHM5"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hero-anim-item mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#405DE6] via-[#C13584] to-[#F56040] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-pink-500/20 transition-transform duration-200 hover:scale-[1.02] opacity-0"
+            target="_blank" rel="noopener noreferrer"
+            className="hero-ig mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#405DE6] via-[#C13584] to-[#F56040] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-pink-500/20 opacity-0 relative overflow-hidden"
+            onClick={handleRipple}
+            onMouseEnter={e => anime({ targets: e.currentTarget, scale: 1.07, duration: 250, easing: 'easeOutQuad' })}
+            onMouseLeave={e => anime({ targets: e.currentTarget, scale: 1,    duration: 250, easing: 'easeOutQuad' })}
           >
             <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-current text-white drop-shadow-sm">
               <rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" strokeWidth="1.8" />
@@ -168,7 +326,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* About Section */}
+      {/* ── About ──────────────────────────────────────────────────────────── */}
       <section className="px-4 lg:px-8 mt-16 max-w-6xl mx-auto">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div ref={aboutLeftRef}>
@@ -180,60 +338,51 @@ export default function Dashboard() {
           </div>
 
           <div ref={aboutRightRef} className="grid grid-cols-2 gap-4">
+            {/* Stat cards — numbers rendered as spans so counter can target them */}
             <div className="about-stat-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center">
-              <div className="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center mb-4">
-                <Activity size={24} />
-              </div>
-              <span className="text-3xl font-bold text-slate-800 mb-1">{stats.totalActivities}</span>
+              <div className="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center mb-4"><Activity size={24} /></div>
+              <span className="stat-number text-3xl font-bold text-slate-800 mb-1">0</span>
               <span className="text-sm text-slate-500 font-medium">Kegiatan</span>
             </div>
             <div className="about-stat-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center">
-              <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mb-4">
-                <Award size={24} />
-              </div>
-              <span className="text-3xl font-bold text-slate-800 mb-1">{stats.totalAchievements}</span>
+              <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mb-4"><Award size={24} /></div>
+              <span className="stat-number text-3xl font-bold text-slate-800 mb-1">0</span>
               <span className="text-sm text-slate-500 font-medium">Prestasi</span>
             </div>
             <div className="about-stat-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center col-span-2">
-              <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-4">
-                <Users size={24} />
-              </div>
-              <span className="text-3xl font-bold text-slate-800 mb-1">{stats.totalMembers}</span>
-              <span className="text-sm text-slate-500 font-medium">Pengurus & Anggota</span>
+              <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-4"><Users size={24} /></div>
+              <span className="stat-number text-3xl font-bold text-slate-800 mb-1">0</span>
+              <span className="text-sm text-slate-500 font-medium">Pengurus &amp; Anggota</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Recruitment Section */}
+      {/* ── Recruitment ────────────────────────────────────────────────────── */}
       <section className="px-4 lg:px-8 mt-24 max-w-6xl mx-auto">
         <div className="bg-gradient-to-br from-blue-900 to-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-blue-800/50">
           <div className="grid md:grid-cols-2 items-center">
             <div ref={recruitmentRef} className="p-8 lg:p-12 text-white">
-              <div className="inline-block bg-blue-500/20 text-blue-300 font-bold px-3 py-1 rounded-full text-sm mb-6 border border-blue-500/30">
+              <div className="recruit-badge inline-block bg-blue-500/20 text-blue-300 font-bold px-3 py-1 rounded-full text-sm mb-6 border border-blue-500/30 opacity-0">
                 Pendaftaran Dibuka
               </div>
-              <h2 className="text-3xl lg:text-4xl font-bold mb-4 leading-tight">
+              <h2 className="recruit-title text-3xl lg:text-4xl font-bold mb-4 leading-tight opacity-0">
                 Open Rekrutmen <span className="text-blue-400">Rohis Al Hafidh</span>
               </h2>
-              <p className="text-slate-300 text-lg mb-8 leading-relaxed">
+              <p className="recruit-body text-slate-300 text-lg mb-8 leading-relaxed opacity-0">
                 Mari bergabung bersama kami menjadi bagian dari keluarga besar Rohis Al Hafidh SMKN 1 Semarang periode 2026/2027. Jadikan masa mudamu lebih bermanfaat dan penuh berkah.
               </p>
-              
+
               <div className="space-y-4 mb-8">
-                <div className="flex items-start gap-3">
-                  <div className="mt-1 w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
-                    <span className="text-sm">✓</span>
-                  </div>
+                <div className="recruit-items flex items-start gap-3 opacity-0">
+                  <div className="mt-1 w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 shrink-0"><span className="text-sm">✓</span></div>
                   <div>
-                    <h4 className="font-bold">Syarat & Ketentuan</h4>
+                    <h4 className="font-bold">Syarat &amp; Ketentuan</h4>
                     <p className="text-sm text-slate-400">Beragama Islam, Disiplin, Tanggung jawab, Sehat jasmani dan rohani, Siap berkontribusi.</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3">
-                  <div className="mt-1 w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
-                    <span className="text-sm text-xs">📅</span>
-                  </div>
+                <div className="recruit-items flex items-start gap-3 opacity-0">
+                  <div className="mt-1 w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 shrink-0"><span className="text-xs">📅</span></div>
                   <div>
                     <h4 className="font-bold">Periode Pendaftaran</h4>
                     <p className="text-sm text-slate-400">1 Oktober - 10 November 2026</p>
@@ -241,48 +390,30 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4">
-                <a
-                  href="https://docs.google.com/forms/d/e/1FAIpQLSdI6wjUMi3tLhjt0tb63nsd0bcLyWXSIilyaNp-XjYlvix7bQ/viewform?usp=header"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-full transition-colors text-center shadow-lg shadow-blue-500/30 inline-block w-max relative overflow-hidden group"
-                  onMouseEnter={(e) => {
-                    anime({
-                      targets: e.currentTarget,
-                      scale: 1.05,
-                      duration: 300,
-                      easing: 'easeOutQuad'
-                    });
-                  }}
-                  onMouseLeave={(e) => {
-                    anime({
-                      targets: e.currentTarget,
-                      scale: 1,
-                      duration: 300,
-                      easing: 'easeOutQuad'
-                    });
-                  }}
-                >
-                  Daftar Sekarang
-                </a>
-              </div>
-            </div>
-            
-            <div className="relative h-full min-h-[400px] bg-blue-950/50 flex items-center justify-center p-8 lg:p-12 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80 z-0"></div>
-              
-              <div 
-                ref={posterRef}
-                className="relative z-10 w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl border-4 border-white/10 bg-slate-800"
+              <a
+                href="https://docs.google.com/forms/d/e/1FAIpQLSdI6wjUMi3tLhjt0tb63nsd0bcLyWXSIilyaNp-XjYlvix7bQ/viewform?usp=header"
+                target="_blank" rel="noopener noreferrer"
+                className="recruit-btn opacity-0 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-full transition-colors text-center shadow-lg shadow-blue-500/30 inline-block relative overflow-hidden"
+                onClick={handleRipple}
+                onMouseEnter={e => anime({ targets: e.currentTarget, scale: 1.06, duration: 250, easing: 'easeOutQuad' })}
+                onMouseLeave={e => anime({ targets: e.currentTarget, scale: 1,    duration: 250, easing: 'easeOutQuad' })}
               >
-                <img 
-                  src="/image.png" 
-                  alt="Poster Open Rekrutmen Rohis" 
+                Daftar Sekarang
+              </a>
+            </div>
+
+            <div className="relative h-full min-h-[400px] bg-blue-950/50 flex items-center justify-center p-8 lg:p-12 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80 z-0" />
+              <div
+                ref={posterRef}
+                className="relative z-10 w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl border-4 border-white/10 bg-slate-800 opacity-0"
+              >
+                <img
+                  src="/image.png" alt="Poster Open Rekrutmen Rohis"
                   className="w-full h-auto object-cover"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = "https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&q=80&w=800";
+                  onError={e => {
+                    (e.target as HTMLImageElement).src =
+                      'https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&q=80&w=800';
                   }}
                 />
               </div>
@@ -291,7 +422,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Recent Activities */}
+      {/* ── Recent Activities ───────────────────────────────────────────────── */}
       <section className="px-4 lg:px-8 mt-24 max-w-6xl mx-auto">
         <div className="flex justify-between items-end mb-8">
           <div>
@@ -304,34 +435,18 @@ export default function Dashboard() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-6" ref={activitiesRef}>
-          {activities.length > 0 ? activities.map((activity, i) => (
+          {activities.length > 0 ? activities.map((activity) => (
             <div
               key={activity.id}
-              className="activity-card bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 group cursor-pointer hover:shadow-md transition-shadow"
-              onMouseEnter={(e) => {
-                anime({
-                  targets: e.currentTarget,
-                  translateY: -5,
-                  duration: 300,
-                  easing: 'easeOutQuad'
-                });
-              }}
-              onMouseLeave={(e) => {
-                anime({
-                  targets: e.currentTarget,
-                  translateY: 0,
-                  duration: 300,
-                  easing: 'easeOutQuad'
-                });
-              }}
+              className="activity-card bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 group cursor-pointer hover:shadow-xl transition-shadow"
+              onMouseEnter={e => anime({ targets: e.currentTarget, translateY: -8, scale: 1.02, duration: 300, easing: 'easeOutQuad' })}
+              onMouseLeave={e => anime({ targets: e.currentTarget, translateY:  0, scale: 1,    duration: 300, easing: 'easeOutQuad' })}
             >
               <div className="aspect-video bg-slate-100 relative overflow-hidden">
                 {activity.coverImage ? (
-                  <img src={activity.coverImage} alt={activity.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <img src={activity.coverImage} alt={activity.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-slate-400">
-                    <Activity size={32} />
-                  </div>
+                  <div className="w-full h-full flex items-center justify-center text-slate-400"><Activity size={32} /></div>
                 )}
                 <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-green-700">
                   {activity.category}
@@ -342,10 +457,8 @@ export default function Dashboard() {
                   {new Date(activity.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
                 </p>
                 <h3 className="font-bold text-slate-800 text-lg mb-2 line-clamp-1">{activity.title}</h3>
-                <p className="text-slate-600 text-sm line-clamp-2 mb-4">
-                  {activity.description}
-                </p>
-                <Link to={`/gallery`} className="text-sm font-bold text-green-600 group-hover:text-green-700">
+                <p className="text-slate-600 text-sm line-clamp-2 mb-4">{activity.description}</p>
+                <Link to="/gallery" className="text-sm font-bold text-green-600 group-hover:text-green-700">
                   Lihat Detail →
                 </Link>
               </div>
@@ -358,41 +471,32 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Preview Structure */}
-      <section className="px-4 lg:px-8 mt-24 mb-12 max-w-6xl mx-auto text-center">
-        <div className="bg-slate-900 rounded-3xl p-12 relative overflow-hidden group hover:scale-[1.01] transition-transform duration-500">
-          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white to-transparent group-hover:opacity-20 transition-opacity duration-500" />
+      {/* ── CTA Structure ──────────────────────────────────────────────────── */}
+      <section className="px-4 lg:px-8 mt-24 mb-12 max-w-6xl mx-auto text-center" ref={ctaRef}>
+        <div className="cta-block bg-slate-900 rounded-3xl p-12 relative overflow-hidden opacity-0">
+          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white to-transparent" />
+          {/* shimmer border */}
+          <div className="absolute inset-0 rounded-3xl pointer-events-none"
+            style={{ background: 'linear-gradient(135deg,rgba(74,222,128,0.15),transparent 50%,rgba(74,222,128,0.05))' }} />
           <div className="relative z-10">
-            <Users size={48} className="mx-auto text-green-400 mb-6" />
+            <Users size={48} className="cta-icon mx-auto text-green-400 mb-6" />
             <h2 className="text-3xl font-bold text-white mb-4">Struktur Kepengurusan</h2>
             <p className="text-slate-300 max-w-2xl mx-auto mb-8">
               Kenali lebih dekat susunan pengurus dan anggota Rohis Al Hafidh periode saat ini.
             </p>
-            <Link 
-              to="/organization" 
-              className="inline-block bg-white text-slate-900 font-bold px-8 py-3.5 rounded-full hover:bg-green-50 transition-colors shadow-lg"
-              onMouseEnter={(e) => {
-                anime({
-                  targets: e.target,
-                  scale: 1.05,
-                  duration: 200,
-                  easing: 'easeOutQuad'
-                });
-              }}
-              onMouseLeave={(e) => {
-                anime({
-                  targets: e.target,
-                  scale: 1,
-                  duration: 200,
-                  easing: 'easeOutQuad'
-                });
-              }}
+            <Link
+              to="/organization"
+              className="inline-block bg-white text-slate-900 font-bold px-8 py-3.5 rounded-full shadow-lg relative overflow-hidden"
+              onClick={handleRipple as any}
+              onMouseEnter={e => anime({ targets: e.currentTarget, scale: 1.06, duration: 220, easing: 'easeOutQuad' })}
+              onMouseLeave={e => anime({ targets: e.currentTarget, scale: 1,    duration: 220, easing: 'easeOutQuad' })}
             >
               Lihat Struktur Lengkap
             </Link>
           </div>
         </div>
       </section>
+
     </div>
   );
 }
