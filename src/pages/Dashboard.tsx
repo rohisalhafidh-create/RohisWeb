@@ -104,7 +104,6 @@ export default function Dashboard() {
     hide('.activity-card');
     hide('.cta-block');
     if (aboutLeftRef.current)   aboutLeftRef.current.style.opacity   = '0';
-    if (recruitmentRef.current) recruitmentRef.current.style.opacity = '0';
     if (posterRef.current)      posterRef.current.style.opacity      = '0';
 
     // ── Hero: split title into letters ──────────────────────────────────────
