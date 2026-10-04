@@ -22,7 +22,7 @@ const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY || '';
 export function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'Halo! Saya asisten virtual Rohis Al Hafidh. Ada yang bisa saya bantu?' }
+    { role: 'assistant', content: 'Halo! Saya SiHafidh asisten virtual Sobat Rohis Al Hafidh. Ada yang bisa saya bantu?' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -133,7 +133,7 @@ export function Chatbot() {
                     <Bot size={20} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-sm">RohisBot</h3>
+                    <h3 className="font-bold text-sm">SiHafidh</h3>
                     <p className="text-[10px] text-green-100 opacity-90">Tanya apa saja seputar Rohis!</p>
                   </div>
                 </div>
