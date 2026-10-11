@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import anime from 'animejs';
 import { useApi } from '../hooks/useApi';
-import { Activity, Award, Eye, Users, Sparkles, CheckCircle2, Calendar, HeartHandshake, Briefcase, TrendingUp } from 'lucide-react';
+import { Activity, Award, MoonStar, Users, Sparkles, CheckCircle2, Calendar, HeartHandshake, Briefcase, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const BENEFITS = [
