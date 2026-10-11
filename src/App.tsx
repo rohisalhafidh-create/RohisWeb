@@ -4,7 +4,7 @@
  */
 
 import { lazy, Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Outlet } from 'react-router-dom';
 
 const PublicLayout = lazy(() => import('./layouts/PublicLayout').then(module => ({ default: module.PublicLayout })));
 const AdminLayout = lazy(() => import('./layouts/AdminLayout').then(module => ({ default: module.AdminLayout })));
@@ -31,14 +31,15 @@ export default function App() {
           <Route path="organization" element={<Organization />} />
         </Route>
 
-        <Route path="/admin/login" element={<AuthProvider><AdminLogin /></AuthProvider>} />
-
-        <Route path="/admin" element={<AuthProvider><AdminLayout /></AuthProvider>}>
-          <Route index element={<AdminDashboard />} />
-          <Route path="activities" element={<AdminActivities />} />
-          <Route path="achievements" element={<AdminAchievements />} />
-          <Route path="organization" element={<AdminOrganization />} />
-          <Route path="settings" element={<AdminSettings />} />
+        <Route element={<AuthProvider><Outlet /></AuthProvider>}>
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="activities" element={<AdminActivities />} />
+            <Route path="achievements" element={<AdminAchievements />} />
+            <Route path="organization" element={<AdminOrganization />} />
+            <Route path="settings" element={<AdminSettings />} />
+          </Route>
         </Route>
       </Routes>
     </Suspense>

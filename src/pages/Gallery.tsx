@@ -29,12 +29,13 @@ export default function Gallery() {
   };
 
   const handleOpenDetail = async (activity: any) => {
-    setSelectedActivity({ ...activity, images: [] }); // optimistic open
+    setSelectedActivity({ ...activity, images: null }); // loading state for images
     try {
       const detail = await fetchApi(`/activities/${activity.id}`);
       setSelectedActivity(detail);
     } catch (e) {
       console.error('Failed to load detail', e);
+      setSelectedActivity((prev: any) => (prev ? { ...prev, images: [] } : null));
     }
   };
 

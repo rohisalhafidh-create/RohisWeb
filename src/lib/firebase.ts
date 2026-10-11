@@ -21,7 +21,20 @@ export const isFirebaseConfigured = Boolean(
     !firebaseConfig.appId.startsWith('YOUR_')
 );
 
-export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+export const app = getApps().length
+  ? getApp()
+  : initializeApp(
+      isFirebaseConfigured
+        ? firebaseConfig
+        : {
+            apiKey: 'mock-api-key',
+            authDomain: 'mock.firebaseapp.com',
+            projectId: 'mock-project',
+            storageBucket: 'mock.appspot.com',
+            messagingSenderId: '0000000000',
+            appId: '1:0000000000:web:0000000000',
+          }
+    );
 export const auth: Auth | null = isFirebaseConfigured ? getAuth(app) : null;
 export const googleAuthProvider = new GoogleAuthProvider();
 googleAuthProvider.setCustomParameters({ prompt: 'select_account' });

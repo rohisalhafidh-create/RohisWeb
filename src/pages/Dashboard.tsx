@@ -35,8 +35,15 @@ export default function Dashboard() {
 
   const statsRef       = useRef(stats); // stable ref for counter values
 
-  // keep statsRef in sync without triggering effects
-  useEffect(() => { statsRef.current = stats; }, [stats]);
+  // keep statsRef in sync and animate counters when data arrives
+  useEffect(() => {
+    statsRef.current = stats;
+    const els = document.querySelectorAll<HTMLElement>('.stat-number');
+    if (els.length >= 3 && (stats.totalActivities > 0 || stats.totalAchievements > 0 || stats.totalMembers > 0)) {
+      const vals = [stats.totalActivities, stats.totalAchievements, stats.totalMembers];
+      els.forEach((el, i) => animateCounter(el, vals[i], 900));
+    }
+  }, [stats]);
 
   // ── 1. Fetch data ─────────────────────────────────────────────────────────
   useEffect(() => {
