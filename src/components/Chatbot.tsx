@@ -114,7 +114,7 @@ export function Chatbot() {
                     className="bg-slate-50 border-b border-slate-200 overflow-hidden"
                   >
                     <div className="p-3">
-                      <label className="text-xs font-semibold text-slate-600 mb-1.5 block">Pilih Model (Free)</label>
+                      <label className="text-xs font-semibold text-slate-600 mb-1.5 block">Pilih Model AI</label>
                       <select 
                         className="w-full text-xs p-2 rounded-md border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-green-500/50"
                         value={selectedModel.id}
