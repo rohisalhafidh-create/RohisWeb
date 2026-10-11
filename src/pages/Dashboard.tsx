@@ -1,8 +1,23 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import anime from 'animejs';
 import { useApi } from '../hooks/useApi';
-import { Activity, Award, Eye, Users } from 'lucide-react';
+import { Activity, Award, Eye, Users, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+const ISLAMIC_QUOTES = [
+  { text: "Maka sesungguhnya bersama kesulitan ada kemudahan.", source: "QS. Al-Insyirah: 5-6" },
+  { text: "Barang siapa menempuh jalan untuk menuntut ilmu, Allah mudahkan baginya jalan menuju surga.", source: "HR. Muslim no. 2699" },
+  { text: "Sebaik-baik manusia di antaramu adalah yang paling bermanfaat bagi orang lain.", source: "HR. Ahmad & Ath-Thabrani" },
+  { text: "Ingatlah kepada-Ku, niscaya Aku ingat (pula) kepadamu.", source: "QS. Al-Baqarah: 152" },
+  { text: "Senyummu di hadapan saudaramu adalah sedekah bagimu.", source: "HR. Tirmidzi no. 1956" },
+  { text: "Dan bersabarlah, sesungguhnya janji Allah itu adalah benar.", source: "QS. Ar-Rum: 60" },
+  { text: "Kebaikan itu adalah akhlak yang mulia.", source: "HR. Muslim no. 2553" },
+  { text: "Barang siapa beriman kepada Allah dan hari akhir, hendaklah ia berkata baik atau diam.", source: "HR. Bukhari & Muslim" },
+  { text: "Jadikanlah sabar dan salat sebagai penolongmu.", source: "QS. Al-Baqarah: 45" },
+  { text: "Sesungguhnya Allah bersama orang-orang yang sabar.", source: "QS. Al-Baqarah: 153" },
+  { text: "Dan Rabbmu sekali-kali tidak pernah lupa.", source: "QS. Maryam: 64" },
+  { text: "Sesungguhnya Allah menyukai orang-orang yang berbuat kebaikan.", source: "QS. Ali 'Imran: 134" },
+];
 
 // ─── Animated counter (plain object tween, no DOM side‑effects outside fn) ──
 function animateCounter(el: HTMLElement, target: number, duration = 1400) {
@@ -22,6 +37,7 @@ export default function Dashboard() {
   const [stats, setStats]         = useState({ totalActivities: 0, totalAchievements: 0, totalMembers: 0 });
   const [activities, setActivities] = useState<any[]>([]);
   const [settings, setSettings]   = useState<any>({});
+  const [quotes]                  = useState(() => [...ISLAMIC_QUOTES].sort(() => Math.random() - 0.5));
 
   // refs — DOM
   const canvasRef      = useRef<HTMLCanvasElement>(null);
@@ -347,6 +363,33 @@ export default function Dashboard() {
   // ─────────────────────────────────────────────────────────────────────────
   return (
     <div className="pb-12">
+
+      {/* ── Running Ticker / Quotes Islami ──────────────────────────────── */}
+      <section aria-label="Mutiara Hikmah Islami" className="mx-4 lg:mx-8 mt-4 overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-950 via-slate-900 to-teal-950 border border-emerald-500/30 text-white shadow-md">
+        <div className="flex items-center">
+          <div className="z-10 flex shrink-0 items-center gap-1.5 bg-gradient-to-r from-emerald-600 to-green-600 px-3.5 py-2.5 text-xs font-bold tracking-wider text-white uppercase shadow-md">
+            <Sparkles size={14} className="text-emerald-200 animate-pulse" />
+            <span className="hidden sm:inline">Mutiara Hikmah</span>
+            <span className="sm:hidden">Hikmah</span>
+          </div>
+
+          <div className="relative flex-1 overflow-hidden py-2.5 text-xs sm:text-sm">
+            <div className="animate-marquee flex items-center whitespace-nowrap gap-8">
+              {[...quotes, ...quotes].map((item, idx) => (
+                <div key={idx} className="inline-flex items-center gap-2 text-slate-200">
+                  <span className="text-emerald-400 font-serif text-sm font-bold">“</span>
+                  <span className="font-medium text-slate-100">{item.text}</span>
+                  <span className="text-emerald-400 font-serif text-sm font-bold">”</span>
+                  <span className="inline-block rounded-md bg-emerald-500/20 px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold text-emerald-300 border border-emerald-400/30">
+                    {item.source}
+                  </span>
+                  <span className="text-emerald-500/40 ml-3">•</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-slate-900 text-white rounded-3xl mx-4 lg:mx-8 mt-6">

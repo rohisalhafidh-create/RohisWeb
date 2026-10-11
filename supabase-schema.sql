@@ -36,12 +36,15 @@ create table if not exists public.organization_members (
   position text not null default '',
   category text not null default '',
   gender text not null default '',
+  class_name text default '',
   photo_url text,
   description text,
   sort_order integer not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.organization_members add column if not exists class_name text default '';
 
 create table if not exists public.site_settings (
   id text primary key default 'default',

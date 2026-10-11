@@ -76,7 +76,12 @@ app.get('/api/organization', async (_req, res) => {
   try {
     const { data, error } = await database().from('organization_members').select('*').order('sort_order');
     if (error) throw error;
-    res.json((data || []).map(row => ({ ...row, photoUrl: row.photo_url, sortOrder: row.sort_order })));
+    res.json((data || []).map(row => ({
+      ...row,
+      photoUrl: row.photo_url,
+      sortOrder: row.sort_order,
+      className: row.class_name || row.className || '',
+    })));
   } catch (error) { res.status(500).json({ error: 'Failed to fetch organization', details: message(error) }); }
 });
 
@@ -248,18 +253,57 @@ app.delete('/api/achievements/:id', requireAuth, async (req: AuthRequest, res) =
 
 app.post('/api/organization', requireAuth, async (req: AuthRequest, res) => {
   try {
-    const { id, name, position, category, gender, photoUrl, description, sortOrder } = req.body;
-    const { error } = await database().from('organization_members').insert({ id, name, position, category, gender, photo_url: photoUrl || null, description: description || null, sort_order: Number(sortOrder) || 0 });
-    if (error) throw error;
+    const { id, name, position, category, gender, className, photoUrl, description, sortOrder } = req.body;
+    const client = database();
+    const payload = {
+      id,
+      name,
+      position,
+      category,
+      gender,
+      class_name: className || null,
+      photo_url: photoUrl || null,
+      description: description || null,
+      sort_order: Number(sortOrder) || 0,
+    };
+    const { error } = await client.from('organization_members').insert(payload);
+    if (error) {
+      if (error.message?.includes('class_name') || (error as any).code === '42703') {
+        const { class_name, ...fallbackPayload } = payload;
+        const { error: fallbackError } = await client.from('organization_members').insert(fallbackPayload);
+        if (fallbackError) throw fallbackError;
+      } else {
+        throw error;
+      }
+    }
     res.json({ success: true });
   } catch (error) { res.status(500).json({ error: 'Failed to create member', details: message(error) }); }
 });
 
 app.put('/api/organization/:id', requireAuth, async (req: AuthRequest, res) => {
   try {
-    const { name, position, category, gender, photoUrl, description, sortOrder } = req.body;
-    const { error } = await database().from('organization_members').update({ name, position, category, gender, photo_url: photoUrl || null, description: description || null, sort_order: Number(sortOrder) || 0 }).eq('id', req.params.id);
-    if (error) throw error;
+    const { name, position, category, gender, className, photoUrl, description, sortOrder } = req.body;
+    const client = database();
+    const payload = {
+      name,
+      position,
+      category,
+      gender,
+      class_name: className || null,
+      photo_url: photoUrl || null,
+      description: description || null,
+      sort_order: Number(sortOrder) || 0,
+    };
+    const { error } = await client.from('organization_members').update(payload).eq('id', req.params.id);
+    if (error) {
+      if (error.message?.includes('class_name') || (error as any).code === '42703') {
+        const { class_name, ...fallbackPayload } = payload;
+        const { error: fallbackError } = await client.from('organization_members').update(fallbackPayload).eq('id', req.params.id);
+        if (fallbackError) throw fallbackError;
+      } else {
+        throw error;
+      }
+    }
     res.json({ success: true });
   } catch (error) { res.status(500).json({ error: 'Failed to update member', details: message(error) }); }
 });

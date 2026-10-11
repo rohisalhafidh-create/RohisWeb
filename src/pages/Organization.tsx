@@ -39,6 +39,11 @@ export default function Organization() {
       </div>
       <h3 className="font-bold text-slate-800">{member.name}</h3>
       <p className="text-sm font-medium text-green-600 mt-1">{member.position}</p>
+      {(member.className || member.class_name) && (
+        <span className="inline-block mt-2 text-xs font-semibold px-2.5 py-0.5 bg-green-50 text-green-700 rounded-full border border-green-100/60">
+          {member.className || member.class_name}
+        </span>
+      )}
       {member.description && (
         <p className="text-xs text-slate-500 mt-3">{member.description}</p>
       )}
