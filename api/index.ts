@@ -76,12 +76,24 @@ app.get('/api/organization', async (_req, res) => {
   try {
     const { data, error } = await database().from('organization_members').select('*').order('sort_order');
     if (error) throw error;
-    res.json((data || []).map(row => ({
-      ...row,
-      photoUrl: row.photo_url,
-      sortOrder: row.sort_order,
-      className: row.class_name || row.className || '',
-    })));
+    res.json((data || []).map(row => {
+      let cls = row.class_name || row.className || '';
+      let desc = row.description || '';
+      if (!cls && desc && desc.includes('[Kelas: ')) {
+        const match = desc.match(/\[Kelas:\s*([^\]]+)\]/);
+        if (match) {
+          cls = match[1];
+          desc = desc.replace(/\s*\[Kelas:\s*[^\]]+\]\s*/, '').trim();
+        }
+      }
+      return {
+        ...row,
+        description: desc,
+        photoUrl: row.photo_url,
+        sortOrder: row.sort_order,
+        className: cls,
+      };
+    }));
   } catch (error) { res.status(500).json({ error: 'Failed to fetch organization', details: message(error) }); }
 });
 
@@ -269,7 +281,10 @@ app.post('/api/organization', requireAuth, async (req: AuthRequest, res) => {
     const { error } = await client.from('organization_members').insert(payload);
     if (error) {
       if (error.message?.includes('class_name') || (error as any).code === '42703') {
-        const { class_name, ...fallbackPayload } = payload;
+        const backupDesc = description
+          ? `${description}\n[Kelas: ${className || ''}]`
+          : (className ? `[Kelas: ${className}]` : null);
+        const { class_name, ...fallbackPayload } = { ...payload, description: backupDesc };
         const { error: fallbackError } = await client.from('organization_members').insert(fallbackPayload);
         if (fallbackError) throw fallbackError;
       } else {
@@ -297,7 +312,10 @@ app.put('/api/organization/:id', requireAuth, async (req: AuthRequest, res) => {
     const { error } = await client.from('organization_members').update(payload).eq('id', req.params.id);
     if (error) {
       if (error.message?.includes('class_name') || (error as any).code === '42703') {
-        const { class_name, ...fallbackPayload } = payload;
+        const backupDesc = description
+          ? `${description}\n[Kelas: ${className || ''}]`
+          : (className ? `[Kelas: ${className}]` : null);
+        const { class_name, ...fallbackPayload } = { ...payload, description: backupDesc };
         const { error: fallbackError } = await client.from('organization_members').update(fallbackPayload).eq('id', req.params.id);
         if (fallbackError) throw fallbackError;
       } else {

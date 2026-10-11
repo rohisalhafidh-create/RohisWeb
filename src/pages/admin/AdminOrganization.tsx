@@ -154,8 +154,8 @@ export default function AdminOrganization() {
                     <input required type="text" value={formData.position} onChange={e => setFormData({...formData, position: e.target.value})} className="w-full border rounded-xl px-4 py-2" placeholder="Ketua, Anggota..." />
                   </div>
                   <div>
-                    <label className="block text-sm text-slate-700 mb-1">Kelas (Opsional)</label>
-                    <input type="text" value={formData.className} onChange={e => setFormData({...formData, className: e.target.value})} className="w-full border rounded-xl px-4 py-2" placeholder="Ex: XI PPLG 1 / Guru" />
+                    <label className="block text-sm text-slate-700 mb-1">Kelas <span className="text-rose-500">*</span></label>
+                    <input required type="text" value={formData.className} onChange={e => setFormData({...formData, className: e.target.value})} className="w-full border rounded-xl px-4 py-2" placeholder="Ex: XI PPLG 1 / Pembina" />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
