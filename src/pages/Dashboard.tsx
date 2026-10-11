@@ -534,7 +534,7 @@ export default function Dashboard() {
         <div className="rounded-2xl sm:rounded-3xl border border-green-100 bg-gradient-to-br from-green-50 via-white to-emerald-50 p-6 sm:p-8 lg:p-10">
           <div className="flex items-start gap-4 sm:gap-5">
             <div className="w-11 h-11 sm:w-14 sm:h-14 shrink-0 rounded-xl sm:rounded-2xl bg-green-100 text-green-700 flex items-center justify-center">
-              <Eye size={24} />
+              <MoonStar size={26} className="text-green-700" />
             </div>
             <div>
               <p className="text-xs sm:text-sm font-bold uppercase tracking-wider text-green-700 mb-1">Arah dan Tujuan</p>
