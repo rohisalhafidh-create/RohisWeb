@@ -547,54 +547,6 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* ── Benefit Bergabung ────────────────────────────────────────────────── */}
-      <section className="px-4 lg:px-8 mt-16 sm:mt-20 max-w-6xl mx-auto">
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/70 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-3">
-            <Sparkles size={14} className="text-emerald-600" />
-            <span>Keuntungan Bergabung</span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-800 tracking-tight">
-            Benefit Bergabung dengan Rohis Al-Hafidh
-          </h2>
-          <p className="text-slate-600 text-sm sm:text-base mt-2 leading-relaxed">
-            Temukan banyak peluang dan manfaat nyata untuk bekal masa depan serta pengembangan karakter islami.
-          </p>
-        </div>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {BENEFITS.map((item, idx) => {
-            const Icon = item.icon;
-            const isLast = idx === 6;
-            return (
-              <div
-                key={idx}
-                className={`bg-white rounded-2xl p-5 sm:p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between group ${
-                  isLast ? 'sm:col-span-2 lg:col-span-1' : ''
-                }`}
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center border ${item.color} shadow-sm group-hover:scale-105 transition-transform`}>
-                      <Icon size={22} />
-                    </div>
-                    <span className="text-xs font-extrabold tracking-wider text-slate-400 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
-                      {item.num}
-                    </span>
-                  </div>
-                  <h3 className="font-bold text-slate-800 text-base sm:text-lg mb-2 group-hover:text-emerald-700 transition-colors">
-                    {item.title}
-                  </h3>
-                  <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
-                    {item.desc}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
       {/* ── Recruitment ────────────────────────────────────────────────────── */}
       <section className="px-4 lg:px-8 mt-14 sm:mt-16 max-w-5xl mx-auto">
         <div className="bg-gradient-to-br from-blue-900 to-slate-900 rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl border border-blue-800/50">
@@ -655,6 +607,54 @@ export default function Dashboard() {
         </div>
       </section>
 
+ {/* ── Benefit Bergabung ────────────────────────────────────────────────── */}
+      <section className="px-4 lg:px-8 mt-16 sm:mt-20 max-w-6xl mx-auto">
+        <div className="text-center max-w-2xl mx-auto mb-10">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/70 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-3">
+            <Sparkles size={14} className="text-emerald-600" />
+            <span>Keuntungan Bergabung</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-800 tracking-tight">
+            Benefit Bergabung dengan Rohis Al-Hafidh
+          </h2>
+          <p className="text-slate-600 text-sm sm:text-base mt-2 leading-relaxed">
+            Temukan banyak peluang dan manfaat nyata untuk bekal masa depan serta pengembangan karakter islami.
+          </p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {BENEFITS.map((item, idx) => {
+            const Icon = item.icon;
+            const isLast = idx === 6;
+            return (
+              <div
+                key={idx}
+                className={`bg-white rounded-2xl p-5 sm:p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between group ${
+                  isLast ? 'sm:col-span-2 lg:col-span-1' : ''
+                }`}
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center border ${item.color} shadow-sm group-hover:scale-105 transition-transform`}>
+                      <Icon size={22} />
+                    </div>
+                    <span className="text-xs font-extrabold tracking-wider text-slate-400 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
+                      {item.num}
+                    </span>
+                  </div>
+                  <h3 className="font-bold text-slate-800 text-base sm:text-lg mb-2 group-hover:text-emerald-700 transition-colors">
+                    {item.title}
+                  </h3>
+                  <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+      
       {/* ── Recent Activities ───────────────────────────────────────────────── */}
       <section className="px-4 lg:px-8 mt-24 max-w-6xl mx-auto">
         <div className="flex justify-between items-end mb-8">
