@@ -17,6 +17,22 @@ const ISLAMIC_QUOTES = [
   { text: "Sesungguhnya Allah bersama orang-orang yang sabar.", source: "QS. Al-Baqarah: 153" },
   { text: "Dan Rabbmu sekali-kali tidak pernah lupa.", source: "QS. Maryam: 64" },
   { text: "Sesungguhnya Allah menyukai orang-orang yang berbuat kebaikan.", source: "QS. Ali 'Imran: 134" },
+  { text: "Hanya dengan mengingat Allah hati menjadi tenteram.", source: "QS. Ar-Ra'd: 28" },
+  { text: "Tidak akan berkurang harta karena sedekah.", source: "HR. Muslim no. 2588" },
+  { text: "Tebarkanlah salam, berikanlah makan, dan salatlah malam saat manusia tidur, niscaya kalian masuk surga dengan selamat.", source: "HR. Tirmidzi no. 2485" },
+  { text: "Sesungguhnya setiap amalan tergantung pada niatnya.", source: "HR. Bukhari no. 1" },
+  { text: "Janganlah engkau marah, maka bagimu surga.", source: "HR. Ath-Thabrani" },
+  { text: "Barang siapa bertawakal kepada Allah, niscaya Allah akan mencukupkan keperluannya.", source: "QS. At-Talaq: 3" },
+  { text: "Orang mukmin yang paling sempurna imannya adalah yang paling baik akhlaknya.", source: "HR. Abu Dawud no. 4682" },
+  { text: "Dan rendahkanlah hatimu terhadap orang-orang yang beriman.", source: "QS. Al-Hijr: 88" },
+  { text: "Dunia ini perhiasan, dan sebaik-baik perhiasan dunia adalah wanita salehah.", source: "HR. Muslim no. 1467" },
+  { text: "Sampaikanlah dariku walau hanya satu ayat.", source: "HR. Bukhari no. 3461" },
+  { text: "Sesungguhnya Allah Maha Indah dan mencintai keindahan.", source: "HR. Muslim no. 91" },
+  { text: "Cukuplah Allah menjadi Penolong kami dan Dia adalah sebaik-baik Pelindung.", source: "QS. Ali 'Imran: 173" },
+  { text: "Bertakwalah kepada Allah di mana pun engkau berada, dan iringilah keburukan dengan kebaikan.", source: "HR. Tirmidzi no. 1987" },
+  { text: "Dan tolong-menolonglah kamu dalam kebaikan dan ketakwaan.", source: "QS. Al-Ma'idah: 2" },
+  { text: "Rida Allah terletak pada rida orang tua, dan murka Allah terletak pada murka orang tua.", source: "HR. Tirmidzi no. 1899" },
+  { text: "Boleh jadi kamu membenci sesuatu, padahal ia amat baik bagimu.", source: "QS. Al-Baqarah: 216" },
 ];
 
 // ─── Animated counter (plain object tween, no DOM side‑effects outside fn) ──
