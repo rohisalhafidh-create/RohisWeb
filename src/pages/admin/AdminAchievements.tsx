@@ -166,7 +166,7 @@ export default function AdminAchievements() {
                         if (file) {
                           try {
                             const base64 = await fileToBase64(file);
-                            setFormData({...formData, imageUrl: base64});
+                            setFormData(previous => ({ ...previous, imageUrl: base64 }));
                           } catch (err) {
                             console.error("Gagal membaca file", err);
                           }

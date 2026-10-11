@@ -93,6 +93,8 @@ export default function Gallery() {
                   <img 
                     src={activity.coverImage} 
                     alt={activity.title} 
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
@@ -162,7 +164,7 @@ export default function Gallery() {
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {selectedActivity.images.map((img: any) => (
                       <div key={img.id} className="aspect-square rounded-xl overflow-hidden bg-slate-100">
-                        <img src={img.imageUrl} alt="" className="w-full h-full object-cover" />
+                        <img src={img.imageUrl} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                       </div>
                     ))}
                   </div>

@@ -16,9 +16,6 @@ const MODELS = [
   { id: 'minimax/minimax-m3:free', name: 'Minimax M3', provider: 'openrouter' }
 ];
 
-const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || '';
-const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY || '';
-
 export function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -47,65 +44,19 @@ export function Chatbot() {
     setIsLoading(true);
 
     try {
-      let assistantReply = '';
-
-      if (selectedModel.provider === 'openrouter') {
-        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-            'HTTP-Referer': window.location.origin,
-            'X-Title': 'RohisWeb',
-          },
-          body: JSON.stringify({
-            model: selectedModel.id,
-            messages: [
-              { role: 'system', content: 'Anda adalah asisten virtual yang ramah untuk Rohis Al Hafidh SMKN 1 Semarang. Jawablah pertanyaan dengan sopan dan ringkas dalam bahasa Indonesia.' },
-              ...messages.map(m => ({ role: m.role, content: m.content })),
-              { role: 'user', content: userMessage }
-            ]
-          })
-        });
-
-        const data = await response.json();
-        if (data.choices && data.choices.length > 0) {
-          assistantReply = data.choices[0].message.content;
-        } else {
-          throw new Error('No valid response from OpenRouter');
-        }
-      } else if (selectedModel.provider === 'google') {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${selectedModel.id}:generateContent?key=${GOOGLE_API_KEY}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            contents: [
-              ...messages.map(m => ({
-                role: m.role === 'assistant' ? 'model' : 'user',
-                parts: [{ text: m.content }]
-              })),
-              {
-                role: 'user',
-                parts: [{ text: userMessage }]
-              }
-            ],
-            systemInstruction: {
-              parts: [{ text: 'Anda adalah asisten virtual yang ramah untuk Rohis Al Hafidh SMKN 1 Semarang. Jawablah pertanyaan dengan sopan dan ringkas dalam bahasa Indonesia.' }]
-            }
-          })
-        });
-
-        const data = await response.json();
-        if (data.candidates && data.candidates.length > 0) {
-          assistantReply = data.candidates[0].content.parts[0].text;
-        } else {
-          throw new Error('No valid response from Google AI Studio');
-        }
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: selectedModel.id,
+          messages: [...messages, { role: 'user', content: userMessage }].slice(-20),
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok || typeof data.content !== 'string') {
+        throw new Error(data.error || `Chat gagal (${response.status})`);
       }
-
-      setMessages(prev => [...prev, { role: 'assistant', content: assistantReply }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: data.content }]);
     } catch (error) {
       console.error('Chatbot error:', error);
       setMessages(prev => [...prev, { role: 'assistant', content: 'Maaf, terjadi kesalahan saat memproses pesan Anda. Coba model lain jika masalah berlanjut.' }]);

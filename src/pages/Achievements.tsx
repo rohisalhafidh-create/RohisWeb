@@ -71,7 +71,7 @@ export default function Achievements() {
                   >
                     {ach.imageUrl ? (
                       <div className="w-full md:w-auto max-w-full shrink-0 overflow-hidden rounded-xl bg-slate-50 self-stretch md:self-auto">
-                        <img src={ach.imageUrl} alt={ach.title} className="block w-full md:w-[220px] h-auto md:h-[180px] object-cover rounded-xl bg-slate-50" />
+                        <img src={ach.imageUrl} alt={ach.title} loading="lazy" decoding="async" className="block w-full md:w-[220px] h-auto md:h-[180px] object-cover rounded-xl bg-slate-50" />
                       </div>
                     ) : (
                       <div className="w-full md:w-[220px] h-[180px] bg-amber-50 rounded-xl flex items-center justify-center text-amber-300">

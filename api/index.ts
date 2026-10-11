@@ -39,7 +39,12 @@ app.get('/api/health', (_req, res) => {
 
 app.get('/api/activities', async (_req, res) => {
   try {
-    const { data, error } = await database().from('activities').select('*').order('date', { ascending: false });
+    let query = database().from('activities').select('*').order('date', { ascending: false });
+    const requestedLimit = Number(_req.query.limit);
+    if (Number.isInteger(requestedLimit) && requestedLimit > 0 && requestedLimit <= 100) {
+      query = query.limit(requestedLimit);
+    }
+    const { data, error } = await query;
     if (error) throw error;
     res.json((data || []).map(row => ({ ...row, coverImage: row.cover_image })));
   } catch (error) { res.status(500).json({ error: 'Failed to fetch activities', details: message(error) }); }
@@ -95,6 +100,81 @@ app.get('/api/stats', async (_req, res) => {
     if (failed?.error) throw failed.error;
     res.json({ totalActivities: results[0].count || 0, totalAchievements: results[1].count || 0, totalMembers: results[2].count || 0 });
   } catch (error) { res.status(500).json({ error: 'Failed to fetch stats', details: message(error) }); }
+});
+
+const CHAT_MODELS: Record<string, 'openrouter' | 'google'> = {
+  'nvidia/nemotron-3.5-lightning:free': 'openrouter',
+  'openai/gpt-4o-mini': 'openrouter',
+  'gemini-3.5-flash': 'google',
+  'liquid/lfm-2.5-2.6b:free': 'openrouter',
+  'minimax/minimax-m3:free': 'openrouter',
+};
+
+app.post('/api/chat', async (req, res) => {
+  const { model, messages } = req.body || {};
+  const provider = typeof model === 'string' ? CHAT_MODELS[model] : undefined;
+  if (!provider || !Array.isArray(messages) || messages.length === 0 || messages.length > 20) {
+    return res.status(400).json({ error: 'Invalid chat request' });
+  }
+
+  const validMessages = messages.every((item: unknown) =>
+    typeof item === 'object' && item !== null &&
+    ['user', 'assistant'].includes((item as { role?: string }).role || '') &&
+    typeof (item as { content?: unknown }).content === 'string' &&
+    (item as { content: string }).content.length <= 4000
+  );
+  if (!validMessages) return res.status(400).json({ error: 'Invalid chat messages' });
+
+  const systemPrompt = 'Anda adalah asisten virtual yang ramah untuk Rohis Al Hafidh SMKN 1 Semarang. Jawablah pertanyaan dengan sopan dan ringkas dalam bahasa Indonesia.';
+  const apiKey = provider === 'openrouter' ? process.env.OPENROUTER_API_KEY : process.env.GOOGLE_API_KEY;
+  if (!apiKey) return res.status(503).json({ error: `Chat ${provider} belum dikonfigurasi di server.` });
+
+  try {
+    const endpoint = provider === 'openrouter'
+      ? 'https://openrouter.ai/api/v1/chat/completions'
+      : `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+    const payload = provider === 'openrouter'
+      ? {
+          model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            ...messages,
+          ],
+        }
+      : {
+          contents: messages.map((item: { role: string; content: string }) => ({
+            role: item.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: item.content }],
+          })),
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+        };
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(provider === 'openrouter'
+          ? { Authorization: `Bearer ${apiKey}`, 'HTTP-Referer': process.env.PUBLIC_SITE_URL || '', 'X-Title': 'RohisWeb' }
+          : {}),
+      },
+      body: JSON.stringify(payload),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      console.error(`Chat provider returned ${response.status}:`, data);
+      return res.status(502).json({ error: 'Chat provider gagal memproses pesan.' });
+    }
+
+    const content = provider === 'openrouter'
+      ? data.choices?.[0]?.message?.content
+      : data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (typeof content !== 'string' || !content) {
+      return res.status(502).json({ error: 'Chat provider mengirim respons yang tidak valid.' });
+    }
+    return res.json({ content });
+  } catch (error) {
+    console.error('Chat provider request failed:', error);
+    return res.status(502).json({ error: 'Tidak dapat menghubungi chat provider.' });
+  }
 });
 
 app.post('/api/activities', requireAuth, async (req: AuthRequest, res) => {

@@ -3,7 +3,7 @@ import { useApi } from '../../hooks/useApi';
 import { Plus, Edit2, Trash2, Image as ImageIcon, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ConfirmDialog from '../../components/ConfirmDialog';
-import { fileToBase64 } from '../../lib/utils';
+import { dateInputValue, fileToBase64, localDateInputValue } from '../../lib/utils';
 
 export default function AdminActivities() {
   const { fetchApi } = useApi();
@@ -16,7 +16,7 @@ export default function AdminActivities() {
   const [formData, setFormData] = useState({
     title: '',
     category: '',
-    date: new Date().toISOString().slice(0, 10),
+    date: localDateInputValue(),
     description: '',
     coverImage: ''
   });
@@ -38,7 +38,7 @@ export default function AdminActivities() {
     setFormData({
       title: '',
       category: '',
-      date: new Date().toISOString().slice(0, 10),
+      date: localDateInputValue(),
       description: '',
       coverImage: ''
     });
@@ -54,7 +54,7 @@ export default function AdminActivities() {
     setFormData({
       title: activity.title,
       category: activity.category,
-      date: new Date(activity.date).toISOString().slice(0, 10),
+      date: dateInputValue(activity.date),
       description: activity.description,
       coverImage: activity.coverImage || ''
     });
@@ -203,7 +203,7 @@ export default function AdminActivities() {
                         if (file) {
                           try {
                             const base64 = await fileToBase64(file);
-                            setFormData({...formData, coverImage: base64});
+                            setFormData(previous => ({ ...previous, coverImage: base64 }));
                           } catch (err) {
                             console.error("Gagal membaca file", err);
                           }

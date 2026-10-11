@@ -33,9 +33,6 @@ export default function Dashboard() {
   const activitiesRef  = useRef<HTMLDivElement>(null);
   const ctaRef         = useRef<HTMLDivElement>(null);
 
-  // refs — flags to prevent double‑runs
-  const heroAnimRan    = useRef(false);
-  const scrollAnimRan  = useRef(false);
   const statsRef       = useRef(stats); // stable ref for counter values
 
   // keep statsRef in sync without triggering effects
@@ -46,14 +43,19 @@ export default function Dashboard() {
     let cancelled = false;
     const load = async () => {
       try {
-        const [statsData, actData, , setData] = await Promise.all([
-          fetchApi('/stats'), fetchApi('/activities'),
-          fetchApi('/achievements'), fetchApi('/settings'),
+        const results = await Promise.allSettled([
+          fetchApi('/stats'),
+          fetchApi('/activities?limit=3'),
+          fetchApi('/settings'),
         ]);
         if (cancelled) return;
-        setStats(statsData);
-        setActivities(actData.slice(0, 3));
-        setSettings(setData || {});
+        const [statsResult, activitiesResult, settingsResult] = results;
+        if (statsResult.status === 'fulfilled') setStats(statsResult.value);
+        else console.error('Failed to load dashboard stats', statsResult.reason);
+        if (activitiesResult.status === 'fulfilled') setActivities(activitiesResult.value);
+        else console.error('Failed to load dashboard activities', activitiesResult.reason);
+        if (settingsResult.status === 'fulfilled') setSettings(settingsResult.value || {});
+        else console.error('Failed to load dashboard settings', settingsResult.reason);
       } catch (e) { console.error('Failed to load dashboard data', e); }
     };
     load();
@@ -67,13 +69,22 @@ export default function Dashboard() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let raf: number;
-    // reduce count on small screens
-    const COUNT = window.innerWidth < 768 ? 25 : 45;
+    let raf: number | null = null;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) return;
+    const COUNT = window.innerWidth < 768 ? 16 : 32;
+    let isVisible = false;
+    let lastFrameTime = 0;
+    let width = 0;
+    let height = 0;
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
 
     const resize = () => {
-      canvas.width  = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
+      width = canvas.offsetWidth;
+      height = canvas.offsetHeight;
+      canvas.width = Math.round(width * pixelRatio);
+      canvas.height = Math.round(height * pixelRatio);
+      ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
     };
     resize();
 
@@ -83,57 +94,78 @@ export default function Dashboard() {
     window.addEventListener('resize', onResize);
 
     const particles = Array.from({ length: COUNT }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
+      x: Math.random() * width,
+      y: Math.random() * height,
       r: Math.random() * 1.6 + 0.3,
       speed: Math.random() * 0.35 + 0.08,
       angle: Math.random() * Math.PI * 2,
       opacity: Math.random() * 0.45 + 0.15,
     }));
 
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const stop = () => {
+      if (raf !== null) cancelAnimationFrame(raf);
+      raf = null;
+    };
+    const scheduleFrame = () => {
+      if (raf === null && isVisible && document.visibilityState === 'visible') {
+        raf = requestAnimationFrame(draw);
+      }
+    };
+    const draw = (time: number) => {
+      raf = null;
+      if (!isVisible || document.visibilityState !== 'visible') return;
+      if (time - lastFrameTime < 1000 / 30) {
+        scheduleFrame();
+        return;
+      }
+      lastFrameTime = time;
+      ctx.clearRect(0, 0, width, height);
       for (const p of particles) {
         p.x += Math.cos(p.angle) * p.speed;
         p.y += Math.sin(p.angle) * p.speed;
         p.angle += (Math.random() - 0.5) * 0.03;
-        if (p.x < 0) p.x = canvas.width;
-        else if (p.x > canvas.width) p.x = 0;
-        if (p.y < 0) p.y = canvas.height;
-        else if (p.y > canvas.height) p.y = 0;
+        if (p.x < 0) p.x = width;
+        else if (p.x > width) p.x = 0;
+        if (p.y < 0) p.y = height;
+        else if (p.y > height) p.y = 0;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(134,239,172,${p.opacity})`;
         ctx.fill();
       }
-      raf = requestAnimationFrame(draw);
+      scheduleFrame();
     };
-    draw();
-
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') stop();
+      else scheduleFrame();
+    };
+    const observer = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting;
+      if (isVisible) scheduleFrame();
+      else stop();
+    });
+    observer.observe(canvas);
+    document.addEventListener('visibilitychange', onVisibilityChange);
     return () => {
-      cancelAnimationFrame(raf);
+      stop();
+      observer.disconnect();
       clearTimeout(resizeTimer);
       window.removeEventListener('resize', onResize);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
     };
   }, []);
 
   // ── 3. Hero animation — runs once on mount ────────────────────────────────
   useEffect(() => {
-    if (heroAnimRan.current) return;
-    heroAnimRan.current = true;
-
-    // Split title into per‑letter spans
-    const titleEl = document.querySelector<HTMLElement>('.hero-title');
-    if (titleEl) {
-      const text = titleEl.textContent || '';
-      titleEl.innerHTML = text.split('').map(ch =>
-        ch === ' '
-          ? '<span style="display:inline-block;width:.3em"> </span>'
-          : `<span class="hero-letter" style="display:inline-block;opacity:0;transform:translateY(36px)">${ch}</span>`
-      ).join('');
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.querySelectorAll<HTMLElement>('.hero-logo, .hero-letter, .hero-subtitle, .hero-tagline, .hero-ig')
+        .forEach(element => {
+          element.style.opacity = '1';
+          element.style.transform = 'none';
+        });
+      return;
     }
 
-    // Keep track of anime instances for cleanup
     const instances: anime.AnimeInstance[] = [];
 
     const tl = anime.timeline({ easing: 'easeOutExpo' });
@@ -172,25 +204,33 @@ export default function Dashboard() {
     });
     instances.push(orb1, orb2);
 
-    return () => { instances.forEach(i => i && anime.remove(i)); };
+    return () => { instances.forEach(instance => instance.pause()); };
   }, []);
 
-  // ── 4. Scroll‑triggered animations — runs once after activities load ──────
+  // ── 4. Scroll‑triggered animations ────────────────────────────────────────
   useEffect(() => {
-    if (scrollAnimRan.current || activities.length === 0) return;
-    // Wait one tick so DOM is updated
+    const loopAnimes: anime.AnimeInstance[] = [];
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    let io: IntersectionObserver | undefined;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const timer = setTimeout(() => {
-      if (scrollAnimRan.current) return;
-      scrollAnimRan.current = true;
+      if (reduceMotion) {
+        document.querySelectorAll<HTMLElement>('.about-stat-card, .activity-card, .cta-block, .recruit-badge, .recruit-title, .recruit-body, .recruit-items, .recruit-btn')
+          .forEach(element => {
+            element.style.opacity = '1';
+            element.style.transform = 'none';
+          });
+        if (aboutLeftRef.current) aboutLeftRef.current.style.opacity = '1';
+        if (posterRef.current) posterRef.current.style.opacity = '1';
+        return;
+      }
 
       // Pre‑hide
-      document.querySelectorAll<HTMLElement>('.about-stat-card, .activity-card, .cta-block').forEach(el => { el.style.opacity = '0'; });
+      document.querySelectorAll<HTMLElement>('.about-stat-card, .cta-block').forEach(el => { el.style.opacity = '0'; });
       if (aboutLeftRef.current)  aboutLeftRef.current.style.opacity  = '0';
       if (posterRef.current)     posterRef.current.style.opacity     = '0';
 
-      const loopAnimes: anime.AnimeInstance[] = [];
-
-      const io = new IntersectionObserver((entries) => {
+      io = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (!entry.isIntersecting) return;
 
@@ -204,7 +244,7 @@ export default function Dashboard() {
               opacity: [0, 1], scale: [0.72, 1], rotate: ['-4deg', '0deg'],
               delay: anime.stagger(140), duration: 850, easing: 'easeOutBack(1.4)',
             });
-            setTimeout(() => {
+            timers.push(setTimeout(() => {
               const els = document.querySelectorAll<HTMLElement>('.stat-number');
               const vals = [
                 statsRef.current.totalActivities,
@@ -212,7 +252,7 @@ export default function Dashboard() {
                 statsRef.current.totalMembers,
               ];
               els.forEach((el, i) => animateCounter(el, vals[i]));
-            }, 500);
+            }, 500));
           }
 
           if (entry.target === recruitmentRef.current) {
@@ -264,19 +304,15 @@ export default function Dashboard() {
       [aboutLeftRef, aboutRightRef, recruitmentRef, posterRef, activitiesRef, ctaRef]
         .forEach(r => r.current && io.observe(r.current));
 
-      // Store cleanup ref
-      (window as any).__dashboardScrollCleanup = () => {
-        io.disconnect();
-        loopAnimes.forEach(a => anime.remove(a.animatables?.map((x: any) => x.target)));
-      };
     }, 50);
 
     return () => {
       clearTimeout(timer);
-      (window as any).__dashboardScrollCleanup?.();
-      delete (window as any).__dashboardScrollCleanup;
+      timers.forEach(clearTimeout);
+      io?.disconnect();
+      loopAnimes.forEach(animation => animation.pause());
     };
-  }, [activities]);
+  }, []);
 
   // ── Ripple click handler (memoised) ──────────────────────────────────────
   const handleRipple = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -318,7 +354,9 @@ export default function Dashboard() {
           </div>
 
           <h1 className="hero-title text-4xl lg:text-6xl font-bold mb-4 tracking-tight">
-            ROHIS AL HAFIDH
+            {'ROHIS AL HAFIDH'.split('').map((character, index) => character === ' '
+              ? <span key={index} style={{ display: 'inline-block', width: '.3em' }}> </span>
+              : <span key={index} className="hero-letter" style={{ display: 'inline-block', opacity: 0, transform: 'translateY(36px)' }}>{character}</span>)}
           </h1>
           <h2 className="hero-subtitle text-2xl lg:text-3xl text-green-400 font-medium mb-8 opacity-0">
             {settings?.schoolName || 'SMKN 1 SEMARANG'}
@@ -422,6 +460,7 @@ export default function Dashboard() {
                   src="/image.png" alt="Poster Open Rekrutmen Rohis"
                   className="w-full h-auto object-cover"
                   loading="lazy"
+                  decoding="async"
                   onError={e => {
                     (e.target as HTMLImageElement).src =
                       'https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&q=80&w=800';
@@ -455,7 +494,7 @@ export default function Dashboard() {
             >
               <div className="aspect-video bg-slate-100 relative overflow-hidden">
                 {activity.coverImage ? (
-                  <img src={activity.coverImage} alt={activity.title} loading="lazy"
+                  <img src={activity.coverImage} alt={activity.title} loading="lazy" decoding="async"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-slate-400"><Activity size={32} /></div>

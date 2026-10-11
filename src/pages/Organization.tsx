@@ -47,13 +47,14 @@ export default function Organization() {
 
   const Section = ({ title, members, gridCols = 3 }: { title: string, members: any[], gridCols?: number }) => {
     if (members.length === 0) return null;
+    const columnClass = gridCols === 1 ? 'lg:grid-cols-1' : gridCols === 2 ? 'lg:grid-cols-2' : 'lg:grid-cols-3';
     return (
       <div className="mb-16">
         <h2 className="text-xl font-bold text-center text-slate-800 mb-8 relative inline-block left-1/2 -translate-x-1/2">
           {title}
           <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-green-500 rounded-full" />
         </h2>
-        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-${gridCols} gap-6 max-w-4xl mx-auto justify-center`}>
+        <div className={`grid grid-cols-1 sm:grid-cols-2 ${columnClass} gap-6 max-w-4xl mx-auto justify-center`}>
           {/* @ts-expect-error React 19 key prop type */}
           {members.map(m => <MemberCard key={m.id} member={m} />)}
         </div>

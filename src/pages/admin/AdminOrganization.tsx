@@ -179,7 +179,7 @@ export default function AdminOrganization() {
                         if (file) {
                           try {
                             const base64 = await fileToBase64(file);
-                            setFormData({...formData, photoUrl: base64});
+                            setFormData(previous => ({ ...previous, photoUrl: base64 }));
                           } catch (err) {
                             console.error("Gagal membaca file", err);
                           }
