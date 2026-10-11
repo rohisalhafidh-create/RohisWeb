@@ -8,7 +8,7 @@ const BENEFITS = [
   {
     num: "01",
     title: "Peluang Pengurus Kota & Provinsi",
-    desc: "Peluang menjadi pengurus Rohis tingkat Kota Semarang maupun Provinsi Jawa Tengah, sesuai kesempatan dan proses seleksi yang berlaku.",
+    desc: "Peluang menjadi pengurus Rohis tingkat Kota Semarang. Provinsi Jawa Tengah bahkan hingga Nasional, sesuai kesempatan dan proses seleksi yang berlaku.",
     icon: Award,
     color: "bg-amber-50 text-amber-600 border-amber-200/60",
   },
@@ -22,7 +22,7 @@ const BENEFITS = [
   {
     num: "03",
     title: "Relasi dan Lingkungan Positif",
-    desc: "Memperluas pertemanan dengan siswa lintas kelas, sekolah, hingga komunitas Rohis di Kota Semarang dan Jawa Tengah melalui kegiatan bersama.",
+    desc: "Memperluas pertemanan dengan siswa lintas kelas, sekolah, hingga komunitas Rohis di Kota Semarang,Jawa Tengah hingga Nasional melalui kegiatan bersama.",
     icon: Users,
     color: "bg-blue-50 text-blue-600 border-blue-200/60",
   },
@@ -36,7 +36,7 @@ const BENEFITS = [
   {
     num: "05",
     title: "Kegiatan & Kolaborasi",
-    desc: "Mendapat kesempatan berpartisipasi dalam kegiatan keislaman, pelatihan, seminar, serta kolaborasi antarsekolah apabila tersedia.",
+    desc: "Mendapat kesempatan berpartisipasi dalam kegiatan keislaman, pelatihan, seminar, serta kolaborasi antarsekolah.",
     icon: HeartHandshake,
     color: "bg-teal-50 text-teal-600 border-teal-200/60",
   },
