@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import anime from 'animejs';
 import { useApi } from '../hooks/useApi';
-import { Activity, Award, Users } from 'lucide-react';
+import { Activity, Award, Eye, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 // ─── Animated counter (plain object tween, no DOM side‑effects outside fn) ──
@@ -407,6 +407,23 @@ export default function Dashboard() {
               <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-4"><Users size={24} /></div>
               <span className="stat-number text-3xl font-bold text-slate-800 mb-1">0</span>
               <span className="text-sm text-slate-500 font-medium">Pengurus &amp; Anggota</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="px-4 lg:px-8 mt-12 sm:mt-16 max-w-6xl mx-auto">
+        <div className="rounded-2xl sm:rounded-3xl border border-green-100 bg-gradient-to-br from-green-50 via-white to-emerald-50 p-6 sm:p-8 lg:p-10">
+          <div className="flex items-start gap-4 sm:gap-5">
+            <div className="w-11 h-11 sm:w-14 sm:h-14 shrink-0 rounded-xl sm:rounded-2xl bg-green-100 text-green-700 flex items-center justify-center">
+              <Eye size={24} />
+            </div>
+            <div>
+              <p className="text-xs sm:text-sm font-bold uppercase tracking-wider text-green-700 mb-1">Arah dan Tujuan</p>
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-3">Visi</h2>
+              <p className="text-slate-600 text-base sm:text-lg leading-relaxed">
+                Mewujudkan lingkungan sekolah yang religius, berakhlak baik, dan aktif dalam kegiatan keagamaan yang bermanfaat bagi seluruh warga sekolah.
+              </p>
             </div>
           </div>
         </div>
