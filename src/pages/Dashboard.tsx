@@ -467,7 +467,7 @@ export default function Dashboard() {
                 </div>
               </div>
               <a
-                href="https://docs.google.com/forms/d/e/1FAIpQLSdI6wjUMi3tLhjt0tb63nsd0bcLyWXSIilyaNp-XjYlvix7bQ/viewform?usp=header"
+                href="https://forms.gle/eHZfgLuXhu3aB3sZ9"
                 target="_blank" rel="noopener noreferrer"
                 className="recruit-btn opacity-0 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-full transition-colors text-center shadow-lg shadow-blue-500/30 inline-block relative overflow-hidden"
                 onClick={handleRipple}
