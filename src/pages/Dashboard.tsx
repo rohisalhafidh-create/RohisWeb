@@ -1,8 +1,60 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import anime from 'animejs';
 import { useApi } from '../hooks/useApi';
-import { Activity, Award, Eye, Users, Sparkles } from 'lucide-react';
+import { Activity, Award, Eye, Users, Sparkles, CheckCircle2, Calendar, HeartHandshake, Briefcase, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+const BENEFITS = [
+  {
+    num: "01",
+    title: "Peluang Pengurus Kota & Provinsi",
+    desc: "Peluang menjadi pengurus Rohis tingkat Kota Semarang maupun Provinsi Jawa Tengah, sesuai kesempatan dan proses seleksi yang berlaku.",
+    icon: Award,
+    color: "bg-amber-50 text-amber-600 border-amber-200/60",
+  },
+  {
+    num: "02",
+    title: "Sertifikat Kepengurusan",
+    desc: "Sertifikat kepengurusan sebagai bukti pengalaman berorganisasi, dengan ketentuan penerbitan yang berlaku.",
+    icon: CheckCircle2,
+    color: "bg-emerald-50 text-emerald-600 border-emerald-200/60",
+  },
+  {
+    num: "03",
+    title: "Relasi dan Lingkungan Positif",
+    desc: "Memperluas pertemanan dengan siswa lintas kelas, sekolah, hingga komunitas Rohis di Kota Semarang dan Jawa Tengah melalui kegiatan bersama.",
+    icon: Users,
+    color: "bg-blue-50 text-blue-600 border-blue-200/60",
+  },
+  {
+    num: "04",
+    title: "Pengalaman Menyelenggarakan Acara",
+    desc: "Berpartisipasi dalam perencanaan kajian, peringatan hari besar Islam, kegiatan sosial, dan berbagai program sekolah yang melatih kemampuan mengelola acara.",
+    icon: Calendar,
+    color: "bg-purple-50 text-purple-600 border-purple-200/60",
+  },
+  {
+    num: "05",
+    title: "Kegiatan & Kolaborasi",
+    desc: "Mendapat kesempatan berpartisipasi dalam kegiatan keislaman, pelatihan, seminar, serta kolaborasi antarsekolah apabila tersedia.",
+    icon: HeartHandshake,
+    color: "bg-teal-50 text-teal-600 border-teal-200/60",
+  },
+  {
+    num: "06",
+    title: "Portofolio & Pengalaman Organisasi",
+    desc: "Memiliki pengalaman nyata dalam menjalankan program kerja, mengelola kegiatan, dan bekerja dalam tim yang dapat menjadi nilai tambah untuk portofolio pribadi maupun persiapan masa depan.",
+    icon: Briefcase,
+    color: "bg-rose-50 text-rose-600 border-rose-200/60",
+  },
+  {
+    num: "07",
+    title: "Bertumbuh Bersama dalam Kebaikan",
+    desc: "Memperdalam ilmu agama, mempererat ukhuwah, serta membangun kebiasaan positif bersama lingkungan yang saling mendukung.",
+    icon: TrendingUp,
+    color: "bg-green-50 text-green-600 border-green-200/60",
+  },
+];
 
 const ISLAMIC_QUOTES = [
   { text: "Maka sesungguhnya bersama kesulitan ada kemudahan.", source: "QS. Al-Insyirah: 5-6" },
@@ -413,31 +465,31 @@ export default function Dashboard() {
         <div className="hero-orb-1 absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-b from-green-500/25 to-transparent rounded-full blur-3xl will-change-transform" />
         <div className="hero-orb-2 absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-t from-emerald-500/25 to-transparent rounded-full blur-3xl will-change-transform" />
 
-        <div className="relative z-10 px-8 py-20 lg:py-24 text-center max-w-4xl mx-auto flex flex-col items-center">
-          <div ref={logoRef} className="hero-logo w-20 h-20 bg-white rounded-2xl flex items-center justify-center shadow-xl mb-8 mx-auto overflow-hidden p-2 opacity-0 will-change-transform">
+        <div className="relative z-10 px-6 py-12 lg:py-16 text-center max-w-3xl mx-auto flex flex-col items-center">
+          <div ref={logoRef} className="hero-logo w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-xl mb-5 mx-auto overflow-hidden p-1.5 opacity-0 will-change-transform">
             <img src="/logo.png" alt="Logo Rohis" className="w-full h-full object-contain drop-shadow-md"
               onError={e => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=RA&background=ecfdf5&color=059669'; }} />
           </div>
 
-          <h1 className="hero-title text-4xl lg:text-6xl font-bold mb-4 tracking-tight">
+          <h1 className="hero-title text-3xl lg:text-5xl font-bold mb-3 tracking-tight">
             {'ROHIS AL HAFIDH'.split('').map((character, index) => character === ' '
               ? <span key={index} style={{ display: 'inline-block', width: '.3em' }}> </span>
               : <span key={index} className="hero-letter" style={{ display: 'inline-block', opacity: 0, transform: 'translateY(36px)' }}>{character}</span>)}
           </h1>
-          <h2 className="hero-subtitle text-2xl lg:text-3xl text-green-400 font-medium mb-8 opacity-0">
+          <h2 className="hero-subtitle text-xl lg:text-2xl text-green-400 font-medium mb-4 opacity-0">
             {settings?.schoolName || 'SMKN 1 SEMARANG'}
           </h2>
-          <p className="hero-tagline text-lg lg:text-xl text-slate-300 max-w-2xl mx-auto font-light leading-relaxed opacity-0">
+          <p className="hero-tagline text-base lg:text-lg text-slate-300 max-w-xl mx-auto font-light leading-relaxed opacity-0">
             "{settings?.tagline || 'Semangat Berdakwah, Menjalani Ukhuwah'}"
           </p>
           <a
             href="https://www.instagram.com/rohisalhafidh?igsi=NG9oanVmN3M5NHM5"
             target="_blank" rel="noopener noreferrer"
-            className="hero-ig mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#405DE6] via-[#C13584] to-[#F56040] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-pink-500/20 opacity-0 relative overflow-hidden"
+            className="hero-ig mt-5 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#405DE6] via-[#C13584] to-[#F56040] px-3.5 py-2 text-xs sm:text-sm font-semibold text-white shadow-md shadow-pink-500/20 opacity-0 relative overflow-hidden"
             onClick={handleRipple}
             onMouseEnter={hoverIn} onMouseLeave={hoverOut}
           >
-            <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-current text-white drop-shadow-sm">
+            <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-current text-white drop-shadow-sm">
               <rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" strokeWidth="1.8" />
               <circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
               <circle cx="17.2" cy="6.8" r="1.2" fill="currentColor" />
@@ -495,40 +547,88 @@ export default function Dashboard() {
         </div>
       </section>
 
+      {/* ── Benefit Bergabung ────────────────────────────────────────────────── */}
+      <section className="px-4 lg:px-8 mt-16 sm:mt-20 max-w-6xl mx-auto">
+        <div className="text-center max-w-2xl mx-auto mb-10">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/70 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-3">
+            <Sparkles size={14} className="text-emerald-600" />
+            <span>Keuntungan Bergabung</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-800 tracking-tight">
+            Benefit Bergabung dengan Rohis Al-Hafidh
+          </h2>
+          <p className="text-slate-600 text-sm sm:text-base mt-2 leading-relaxed">
+            Temukan banyak peluang dan manfaat nyata untuk bekal masa depan serta pengembangan karakter islami.
+          </p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {BENEFITS.map((item, idx) => {
+            const Icon = item.icon;
+            const isLast = idx === 6;
+            return (
+              <div
+                key={idx}
+                className={`bg-white rounded-2xl p-5 sm:p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between group ${
+                  isLast ? 'sm:col-span-2 lg:col-span-1' : ''
+                }`}
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center border ${item.color} shadow-sm group-hover:scale-105 transition-transform`}>
+                      <Icon size={22} />
+                    </div>
+                    <span className="text-xs font-extrabold tracking-wider text-slate-400 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
+                      {item.num}
+                    </span>
+                  </div>
+                  <h3 className="font-bold text-slate-800 text-base sm:text-lg mb-2 group-hover:text-emerald-700 transition-colors">
+                    {item.title}
+                  </h3>
+                  <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
       {/* ── Recruitment ────────────────────────────────────────────────────── */}
-      <section className="px-4 lg:px-8 mt-24 max-w-6xl mx-auto">
-        <div className="bg-gradient-to-br from-blue-900 to-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-blue-800/50">
+      <section className="px-4 lg:px-8 mt-14 sm:mt-16 max-w-5xl mx-auto">
+        <div className="bg-gradient-to-br from-blue-900 to-slate-900 rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl border border-blue-800/50">
           <div className="grid md:grid-cols-2 items-center">
-            <div ref={recruitmentRef} className="p-8 lg:p-12 text-white">
-              <div className="recruit-badge inline-block bg-blue-500/20 text-blue-300 font-bold px-3 py-1 rounded-full text-sm mb-6 border border-blue-500/30 opacity-0">
+            <div ref={recruitmentRef} className="p-6 sm:p-8 lg:p-10 text-white">
+              <div className="recruit-badge inline-block bg-blue-500/20 text-blue-300 font-bold px-3 py-1 rounded-full text-xs sm:text-sm mb-4 border border-blue-500/30 opacity-0">
                 Pendaftaran Dibuka
               </div>
-              <h2 className="recruit-title text-3xl lg:text-4xl font-bold mb-4 leading-tight opacity-0">
+              <h2 className="recruit-title text-2xl sm:text-3xl font-bold mb-3 leading-tight opacity-0">
                 Open Rekrutmen <span className="text-blue-400">Rohis Al Hafidh</span>
               </h2>
-              <p className="recruit-body text-slate-300 text-lg mb-8 leading-relaxed opacity-0">
+              <p className="recruit-body text-slate-300 text-sm sm:text-base mb-6 leading-relaxed opacity-0">
                 Mari bergabung bersama kami menjadi bagian dari keluarga besar Rohis Al Hafidh SMKN 1 Semarang periode 2026/2027. Jadikan masa mudamu lebih bermanfaat dan penuh berkah.
               </p>
-              <div className="space-y-4 mb-8">
-                <div className="recruit-items flex items-start gap-3 opacity-0">
-                  <div className="mt-1 w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 shrink-0"><span className="text-sm">✓</span></div>
+              <div className="space-y-3 mb-6">
+                <div className="recruit-items flex items-start gap-2.5 opacity-0">
+                  <div className="mt-0.5 w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 shrink-0 text-xs">✓</div>
                   <div>
-                    <h4 className="font-bold">Syarat &amp; Ketentuan</h4>
-                    <p className="text-sm text-slate-400">Beragama Islam, Disiplin, Tanggung jawab, Sehat jasmani dan rohani, Siap berkontribusi.</p>
+                    <h4 className="font-bold text-sm">Syarat &amp; Ketentuan</h4>
+                    <p className="text-xs sm:text-sm text-slate-400">Beragama Islam, Disiplin, Tanggung jawab, Sehat jasmani dan rohani, Siap berkontribusi.</p>
                   </div>
                 </div>
-                <div className="recruit-items flex items-start gap-3 opacity-0">
-                  <div className="mt-1 w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 shrink-0"><span className="text-xs">📅</span></div>
+                <div className="recruit-items flex items-start gap-2.5 opacity-0">
+                  <div className="mt-0.5 w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 shrink-0 text-xs">📅</div>
                   <div>
-                    <h4 className="font-bold">Periode Pendaftaran</h4>
-                    <p className="text-sm text-slate-400">1 Oktober - 10 November 2026</p>
+                    <h4 className="font-bold text-sm">Periode Pendaftaran</h4>
+                    <p className="text-xs sm:text-sm text-slate-400">1 Oktober - 10 November 2026</p>
                   </div>
                 </div>
               </div>
               <a
                 href="https://forms.gle/eHZfgLuXhu3aB3sZ9"
                 target="_blank" rel="noopener noreferrer"
-                className="recruit-btn opacity-0 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-full transition-colors text-center shadow-lg shadow-blue-500/30 inline-block relative overflow-hidden"
+                className="recruit-btn opacity-0 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2.5 px-6 rounded-full transition-colors text-center text-sm sm:text-base shadow-md shadow-blue-500/30 inline-block relative overflow-hidden"
                 onClick={handleRipple}
                 onMouseEnter={hoverIn} onMouseLeave={hoverOut}
               >
@@ -536,9 +636,9 @@ export default function Dashboard() {
               </a>
             </div>
 
-            <div className="relative h-full min-h-[400px] bg-blue-950/50 flex items-center justify-center p-8 lg:p-12 overflow-hidden">
+            <div className="relative h-full min-h-[260px] sm:min-h-[320px] bg-blue-950/50 flex items-center justify-center p-6 sm:p-8 overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80 z-0" />
-              <div ref={posterRef} className="relative z-10 w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl border-4 border-white/10 bg-slate-800 opacity-0 will-change-transform">
+              <div ref={posterRef} className="relative z-10 w-full max-w-[240px] sm:max-w-[270px] rounded-xl overflow-hidden shadow-xl border-2 sm:border-4 border-white/10 bg-slate-800 opacity-0 will-change-transform">
                 <img
                   src="/image.png" alt="Poster Open Rekrutmen Rohis"
                   className="w-full h-auto object-cover"

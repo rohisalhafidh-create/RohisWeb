@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useApi } from '../hooks/useApi';
-import { Users, User } from 'lucide-react';
+import { Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Organization() {
@@ -27,39 +27,35 @@ export default function Organization() {
   };
 
   const MemberCard = ({ member }: { member: any; key?: React.Key }) => (
-    <div className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-6 border border-slate-100 shadow-sm flex flex-col items-center text-center hover:shadow-md transition-all h-full">
-      <div className="w-14 h-14 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-slate-100 mb-2 sm:mb-4 border-2 sm:border-4 border-green-50 shrink-0">
-        {member.photoUrl ? (
-          <img src={member.photoUrl} alt={member.name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-50">
-            <User className="w-6 h-6 sm:w-8 sm:h-8" />
-          </div>
-        )}
-      </div>
-      <h3 className="font-bold text-slate-800 text-xs sm:text-base leading-snug line-clamp-2">{member.name}</h3>
-      <p className="text-[11px] sm:text-sm font-medium text-green-600 mt-0.5 sm:mt-1 truncate max-w-full">{member.position}</p>
+    <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-slate-100 shadow-sm flex flex-col items-center text-center hover:shadow-md transition-all h-full w-full">
+      <h3 className="font-bold text-slate-800 text-sm sm:text-base leading-snug line-clamp-2">{member.name}</h3>
+      <p className="text-xs sm:text-sm font-medium text-green-600 mt-1 truncate max-w-full">{member.position}</p>
       {(member.className || member.class_name) && (
-        <span className="inline-block mt-1 sm:mt-2 text-[10px] sm:text-xs font-semibold px-2 sm:px-2.5 py-0.5 bg-green-50 text-green-700 rounded-full border border-green-100/60 truncate max-w-full">
+        <span className="inline-block mt-2 text-[10px] sm:text-xs font-semibold px-2.5 py-0.5 bg-green-50 text-green-700 rounded-full border border-green-100/60 truncate max-w-full">
           {member.className || member.class_name}
         </span>
       )}
       {member.description && (
-        <p className="text-[10px] sm:text-xs text-slate-500 mt-1.5 sm:mt-3 line-clamp-2 hidden sm:block">{member.description}</p>
+        <p className="text-[11px] sm:text-xs text-slate-500 mt-2 sm:mt-3 line-clamp-2">{member.description}</p>
       )}
     </div>
   );
 
   const Section = ({ title, members, gridCols = 3 }: { title: string, members: any[], gridCols?: number }) => {
     if (members.length === 0) return null;
-    const desktopCols = gridCols === 1 ? 'lg:grid-cols-1' : gridCols === 2 ? 'lg:grid-cols-2' : 'lg:grid-cols-3';
+    const gridLayout = gridCols === 1
+      ? 'grid-cols-1 max-w-xs mx-auto'
+      : gridCols === 2
+      ? 'grid-cols-2 lg:grid-cols-2 max-w-4xl mx-auto'
+      : 'grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto';
+
     return (
       <div className="mb-8 sm:mb-16">
         <h2 className="text-sm sm:text-xl font-bold text-center text-slate-800 mb-4 sm:mb-8 relative inline-block left-1/2 -translate-x-1/2">
           {title}
           <div className="absolute -bottom-1.5 sm:-bottom-2 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-green-500 rounded-full" />
         </h2>
-        <div className={`grid grid-cols-2 ${desktopCols} gap-2.5 sm:gap-6 max-w-4xl mx-auto justify-center`}>
+        <div className={`grid ${gridLayout} gap-3 sm:gap-6 justify-center w-full`}>
           {members.map(m => <MemberCard key={m.id} member={m} />)}
         </div>
       </div>
@@ -85,7 +81,7 @@ export default function Organization() {
       ) : (
         <div className="relative">
           {/* Pembina */}
-          <div className="grid grid-cols-2 gap-3 sm:gap-12 max-w-4xl mx-auto mb-8 sm:mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-12 max-w-3xl mx-auto mb-8 sm:mb-16">
             <Section title="Pembina Putra" members={getByCategory('Pembina Putra')} gridCols={1} />
             <Section title="Pembina Putri" members={getByCategory('Pembina Putri')} gridCols={1} />
           </div>
