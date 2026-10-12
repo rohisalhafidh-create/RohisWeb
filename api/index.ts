@@ -122,12 +122,7 @@ app.get('/api/stats', async (_req, res) => {
 const CHAT_MODELS: Record<string, 'openrouter' | 'google'> = {
   'nvidia/nemotron-3.5-lightning:free': 'openrouter',
   'liquid/lfm-2.5-2.6b:free': 'openrouter',
-  'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free': 'openrouter',
   'nvidia/nemotron-3-super-120b-a12b:free': 'openrouter',
-  'openai/gpt-4o-mini': 'openrouter',
-  'gemini-2.0-flash': 'google',
-  'gemini-1.5-flash': 'google',
-  'gemini-3.5-flash': 'google',
 };
 
 app.post('/api/chat', async (req, res) => {

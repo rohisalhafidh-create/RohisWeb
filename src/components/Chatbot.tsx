@@ -11,10 +11,7 @@ interface Message {
 const MODELS = [
   { id: 'nvidia/nemotron-3.5-lightning:free', name: 'Nemotron Lightning (Free)', provider: 'openrouter' },
   { id: 'liquid/lfm-2.5-2.6b:free', name: 'Liquid LFM 2.5 (Free)', provider: 'openrouter' },
-  { id: 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free', name: 'Nemotron Nano Reasoning (Free)', provider: 'openrouter' },
-  { id: 'nvidia/nemotron-3-super-120b-a12b:free', name: 'Nemotron 3 Super (Free)', provider: 'openrouter' },
-  { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini (OpenRouter Berbayar)', provider: 'openrouter' },
-  { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash (Google API)', provider: 'google' }
+  { id: 'nvidia/nemotron-3-super-120b-a12b:free', name: 'Nemotron 3 Super (Free)', provider: 'openrouter' }
 ];
 
 export function Chatbot() {
