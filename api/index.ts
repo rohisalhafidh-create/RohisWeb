@@ -121,10 +121,13 @@ app.get('/api/stats', async (_req, res) => {
 
 const CHAT_MODELS: Record<string, 'openrouter' | 'google'> = {
   'nvidia/nemotron-3.5-lightning:free': 'openrouter',
-  'openai/gpt-4o-mini': 'openrouter',
-  'gemini-3.5-flash': 'google',
   'liquid/lfm-2.5-2.6b:free': 'openrouter',
-  'minimax/minimax-m3:free': 'openrouter',
+  'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free': 'openrouter',
+  'nvidia/nemotron-3-super-120b-a12b:free': 'openrouter',
+  'openai/gpt-4o-mini': 'openrouter',
+  'gemini-2.0-flash': 'google',
+  'gemini-1.5-flash': 'google',
+  'gemini-3.5-flash': 'google',
 };
 
 app.post('/api/chat', async (req, res) => {
@@ -147,9 +150,13 @@ app.post('/api/chat', async (req, res) => {
   if (!apiKey) return res.status(503).json({ error: `Chat ${provider} belum dikonfigurasi di server.` });
 
   try {
+    const effectiveModel = (provider === 'google' && model === 'gemini-3.5-flash')
+      ? 'gemini-2.0-flash'
+      : model;
+
     const endpoint = provider === 'openrouter'
       ? 'https://openrouter.ai/api/v1/chat/completions'
-      : `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+      : `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(effectiveModel)}:generateContent?key=${encodeURIComponent(apiKey)}`;
     const payload = provider === 'openrouter'
       ? {
           model,
@@ -170,7 +177,7 @@ app.post('/api/chat', async (req, res) => {
       headers: {
         'Content-Type': 'application/json',
         ...(provider === 'openrouter'
-          ? { Authorization: `Bearer ${apiKey}`, 'HTTP-Referer': process.env.PUBLIC_SITE_URL || '', 'X-Title': 'RohisWeb' }
+          ? { Authorization: `Bearer ${apiKey}`, 'HTTP-Referer': process.env.PUBLIC_SITE_URL || 'http://localhost:3000', 'X-Title': 'RohisWeb' }
           : {}),
       },
       body: JSON.stringify(payload),
@@ -178,15 +185,20 @@ app.post('/api/chat', async (req, res) => {
     const data = await response.json();
     if (!response.ok) {
       console.error(`Chat provider returned ${response.status}:`, data);
-      return res.status(502).json({ error: 'Chat provider gagal memproses pesan.' });
+      const errorMsg = data?.error?.message || (typeof data?.error === 'string' ? data.error : 'Chat provider gagal memproses pesan.');
+      return res.status(response.status || 502).json({ error: errorMsg });
     }
 
-    const content = provider === 'openrouter'
+    let content = provider === 'openrouter'
       ? data.choices?.[0]?.message?.content
       : data.candidates?.[0]?.content?.parts?.[0]?.text;
     if (typeof content !== 'string' || !content) {
       return res.status(502).json({ error: 'Chat provider mengirim respons yang tidak valid.' });
     }
+
+    // Bersihkan tag <think> jika ada dari output reasoning
+    content = content.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+
     return res.json({ content });
   } catch (error) {
     console.error('Chat provider request failed:', error);

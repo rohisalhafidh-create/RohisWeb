@@ -9,11 +9,12 @@ interface Message {
 }
 
 const MODELS = [
-  { id: 'nvidia/nemotron-3.5-lightning:free', name: 'Nemotron Lightning', provider: 'openrouter' },
-  { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini', provider: 'openrouter' },
-  { id: 'gemini-3.5-flash', name: 'Gemini 3.5 Flash', provider: 'google' },
-  { id: 'liquid/lfm-2.5-2.6b:free', name: 'Liquid LFM 2.5', provider: 'openrouter' },
-  { id: 'minimax/minimax-m3:free', name: 'Minimax M3', provider: 'openrouter' }
+  { id: 'nvidia/nemotron-3.5-lightning:free', name: 'Nemotron Lightning (Free)', provider: 'openrouter' },
+  { id: 'liquid/lfm-2.5-2.6b:free', name: 'Liquid LFM 2.5 (Free)', provider: 'openrouter' },
+  { id: 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free', name: 'Nemotron Nano Reasoning (Free)', provider: 'openrouter' },
+  { id: 'nvidia/nemotron-3-super-120b-a12b:free', name: 'Nemotron 3 Super (Free)', provider: 'openrouter' },
+  { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini (OpenRouter Berbayar)', provider: 'openrouter' },
+  { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash (Google API)', provider: 'google' }
 ];
 
 export function Chatbot() {
@@ -57,9 +58,10 @@ export function Chatbot() {
         throw new Error(data.error || `Chat gagal (${response.status})`);
       }
       setMessages(prev => [...prev, { role: 'assistant', content: data.content }]);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Chatbot error:', error);
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Maaf, terjadi kesalahan saat memproses pesan Anda. Coba model lain jika masalah berlanjut.' }]);
+      const errorMsg = error?.message || 'Maaf, terjadi kesalahan saat memproses pesan Anda. Coba model lain jika masalah berlanjut.';
+      setMessages(prev => [...prev, { role: 'assistant', content: errorMsg }]);
     } finally {
       setIsLoading(false);
     }
