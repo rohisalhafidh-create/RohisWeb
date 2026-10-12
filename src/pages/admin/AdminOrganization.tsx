@@ -3,7 +3,6 @@ import { useApi } from '../../hooks/useApi';
 import { Plus, Edit2, Trash2, X, MoveUp, MoveDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ConfirmDialog from '../../components/ConfirmDialog';
-import { fileToBase64 } from '../../lib/utils';
 
 export default function AdminOrganization() {
   const { fetchApi } = useApi();
@@ -15,6 +14,7 @@ export default function AdminOrganization() {
   const [formData, setFormData] = useState({
     name: '',
     position: '',
+    className: '',
     category: 'Pengurus Inti',
     gender: 'Laki-laki',
     description: '',
@@ -39,7 +39,7 @@ export default function AdminOrganization() {
 
   const handleOpenCreate = () => {
     setFormData({
-      name: '', position: '', category: 'Pengurus Inti', gender: 'Laki-laki', description: '', photoUrl: '', sortOrder: members.length
+      name: '', position: '', className: '', category: 'Pengurus Inti', gender: 'Laki-laki', description: '', photoUrl: '', sortOrder: members.length
     });
     setEditingId(null);
     setIsModalOpen(true);
@@ -47,7 +47,7 @@ export default function AdminOrganization() {
 
   const handleOpenEdit = (m: any) => {
     setFormData({
-      name: m.name, position: m.position, category: m.category, gender: m.gender, description: m.description || '', photoUrl: m.photoUrl || '', sortOrder: m.sortOrder
+      name: m.name, position: m.position, className: m.className || m.class_name || '', category: m.category, gender: m.gender, description: m.description || '', photoUrl: m.photoUrl || '', sortOrder: m.sortOrder
     });
     setEditingId(m.id);
     setIsModalOpen(true);
@@ -105,13 +105,15 @@ export default function AdminOrganization() {
               <ul className="divide-y divide-slate-100">
                 {catMembers.map(m => (
                   <li key={m.id} className="p-4 flex items-center justify-between hover:bg-slate-50">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden">
-                        {m.photoUrl && <img src={m.photoUrl} className="w-full h-full object-cover" />}
-                      </div>
-                      <div>
-                        <p className="font-bold text-slate-800 text-sm">{m.name}</p>
+                    <div>
+                      <p className="font-bold text-slate-800 text-sm">{m.name}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
                         <p className="text-xs text-slate-500">{m.position}</p>
+                        {(m.className || m.class_name) && (
+                          <span className="text-[11px] bg-green-50 text-green-700 border border-green-200/60 px-2 py-0.2 rounded-full font-medium">
+                            {m.className || m.class_name}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className="flex gap-2">
@@ -146,13 +148,17 @@ export default function AdminOrganization() {
                     <input required type="text" value={formData.position} onChange={e => setFormData({...formData, position: e.target.value})} className="w-full border rounded-xl px-4 py-2" placeholder="Ketua, Anggota..." />
                   </div>
                   <div>
+                    <label className="block text-sm text-slate-700 mb-1">Kelas <span className="text-rose-500">*</span></label>
+                    <input required type="text" value={formData.className} onChange={e => setFormData({...formData, className: e.target.value})} className="w-full border rounded-xl px-4 py-2" placeholder="Ex: XI PPLG 1 / Pembina" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
                     <label className="block text-sm text-slate-700 mb-1">Kategori</label>
                     <select required value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full border rounded-xl px-4 py-2">
                       {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm text-slate-700 mb-1">Gender</label>
                     <select required value={formData.gender} onChange={e => setFormData({...formData, gender: e.target.value})} className="w-full border rounded-xl px-4 py-2">
@@ -160,34 +166,10 @@ export default function AdminOrganization() {
                       <option value="Perempuan">Perempuan</option>
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-sm text-slate-700 mb-1">Urutan Tampil</label>
-                    <input type="number" value={formData.sortOrder} onChange={e => setFormData({...formData, sortOrder: parseInt(e.target.value) || 0})} className="w-full border rounded-xl px-4 py-2" min="0" />
-                  </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Foto Anggota (Opsional)</label>
-                  <div className="flex items-center gap-4">
-                    {formData.photoUrl && (
-                      <img src={formData.photoUrl} alt="Preview" className="w-16 h-16 object-cover rounded-xl border border-slate-200" />
-                    )}
-                    <input 
-                      type="file" 
-                      accept="image/*"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          try {
-                            const base64 = await fileToBase64(file);
-                            setFormData({...formData, photoUrl: base64});
-                          } catch (err) {
-                            console.error("Gagal membaca file", err);
-                          }
-                        }
-                      }} 
-                      className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer" 
-                    />
-                  </div>
+                  <label className="block text-sm text-slate-700 mb-1">Urutan Tampil</label>
+                  <input type="number" value={formData.sortOrder} onChange={e => setFormData({...formData, sortOrder: parseInt(e.target.value) || 0})} className="w-full border rounded-xl px-4 py-2" min="0" />
                 </div>
                 <div className="pt-4 flex justify-end gap-2">
                   <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-slate-600 bg-slate-100 rounded-xl">Batal</button>

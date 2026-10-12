@@ -29,12 +29,13 @@ export default function Gallery() {
   };
 
   const handleOpenDetail = async (activity: any) => {
-    setSelectedActivity({ ...activity, images: [] }); // optimistic open
+    setSelectedActivity({ ...activity, images: null }); // loading state for images
     try {
       const detail = await fetchApi(`/activities/${activity.id}`);
       setSelectedActivity(detail);
     } catch (e) {
       console.error('Failed to load detail', e);
+      setSelectedActivity((prev: any) => (prev ? { ...prev, images: [] } : null));
     }
   };
 
@@ -43,22 +44,22 @@ export default function Gallery() {
     : activities.filter(a => a.category === activeCategory);
 
   return (
-    <div className="p-6 lg:p-8 max-w-7xl mx-auto">
-      <div className="mb-10">
-        <h1 className="text-3xl lg:text-4xl font-bold text-slate-800 mb-4">Galeri Kegiatan</h1>
-        <p className="text-slate-600 max-w-2xl text-lg">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+      <div className="mb-6 sm:mb-10">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-800 mb-2 sm:mb-4">Galeri Kegiatan</h1>
+        <p className="text-slate-600 max-w-2xl text-sm sm:text-lg">
           Dokumentasi perjalanan dan kegiatan positif yang telah diselenggarakan oleh Rohis Al Hafidh.
         </p>
       </div>
 
       {/* Category Filter */}
       {!loading && categories.length > 1 && (
-        <div className="flex flex-wrap gap-2 mb-8">
+        <div className="flex gap-2 mb-5 sm:mb-8 overflow-x-auto pb-1 -mx-1 px-1">
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              className={`shrink-0 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-colors ${
                 activeCategory === cat 
                   ? 'bg-green-600 text-white shadow-md' 
                   : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
@@ -72,27 +73,29 @@ export default function Gallery() {
 
       {/* Masonry-like Grid */}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {[1, 2, 3, 4, 5, 6].map(i => (
             <div key={i} className="bg-slate-100 rounded-2xl aspect-[4/3] animate-pulse" />
           ))}
         </div>
       ) : filteredActivities.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {filteredActivities.map((activity, idx) => (
-            <motion.div
+            <motion.article
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.05 }}
+              transition={{ delay: Math.min(idx, 8) * 0.035, duration: 0.22 }}
               key={activity.id}
               onClick={() => handleOpenDetail(activity)}
-              className="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 cursor-pointer group hover:shadow-md transition-all flex flex-col"
+              className="bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-sm border border-slate-100 cursor-pointer group hover:shadow-md transition-shadow flex flex-col"
             >
-              <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
+              <div className="relative aspect-square sm:aspect-[4/3] overflow-hidden bg-slate-100">
                 {activity.coverImage ? (
                   <img 
                     src={activity.coverImage} 
                     alt={activity.title} 
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
@@ -100,20 +103,21 @@ export default function Gallery() {
                     <span className="text-sm">Tidak ada cover</span>
                   </div>
                 )}
-                <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-green-700 shadow-sm">
+                <div className="absolute top-2 right-2 sm:top-3 sm:right-3 max-w-[calc(100%-1rem)] truncate bg-white/90 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold text-green-700 shadow-sm">
                   {activity.category}
                 </div>
               </div>
               
-              <div className="p-5 flex-1 flex flex-col">
-                <div className="flex items-center gap-2 text-xs text-slate-500 mb-2">
-                  <Calendar size={14} />
-                  {new Date(activity.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+              <div className="p-2.5 sm:p-5 flex-1 flex flex-col">
+                <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-slate-500 mb-1 sm:mb-2">
+                  <Calendar size={12} className="shrink-0 sm:hidden" />
+                  <Calendar size={14} className="hidden shrink-0 sm:block" />
+                  <span className="truncate">{new Date(activity.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                 </div>
-                <h3 className="font-bold text-slate-800 text-lg mb-2">{activity.title}</h3>
-                <p className="text-slate-600 text-sm line-clamp-2 mt-auto">{activity.description}</p>
+                <h3 className="font-bold text-slate-800 text-sm sm:text-lg leading-snug line-clamp-2 sm:mb-2">{activity.title}</h3>
+                <p className="hidden sm:block text-slate-600 text-sm line-clamp-2 mt-auto">{activity.description}</p>
               </div>
-            </motion.div>
+            </motion.article>
           ))}
         </div>
       ) : (
@@ -162,7 +166,7 @@ export default function Gallery() {
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {selectedActivity.images.map((img: any) => (
                       <div key={img.id} className="aspect-square rounded-xl overflow-hidden bg-slate-100">
-                        <img src={img.imageUrl} alt="" className="w-full h-full object-cover" />
+                        <img src={img.imageUrl} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                       </div>
                     ))}
                   </div>

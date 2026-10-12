@@ -16,13 +16,10 @@ const MODELS = [
   { id: 'minimax/minimax-m3:free', name: 'Minimax M3', provider: 'openrouter' }
 ];
 
-const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || '';
-const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY || '';
-
 export function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'Halo! Saya asisten virtual Rohis Al Hafidh. Ada yang bisa saya bantu?' }
+    { role: 'assistant', content: 'Halo! Saya SiHafidh asisten virtual Sobat Rohis Al Hafidh. Ada yang bisa saya bantu?' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -47,65 +44,19 @@ export function Chatbot() {
     setIsLoading(true);
 
     try {
-      let assistantReply = '';
-
-      if (selectedModel.provider === 'openrouter') {
-        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-            'HTTP-Referer': window.location.origin,
-            'X-Title': 'RohisWeb',
-          },
-          body: JSON.stringify({
-            model: selectedModel.id,
-            messages: [
-              { role: 'system', content: 'Anda adalah asisten virtual yang ramah untuk Rohis Al Hafidh SMKN 1 Semarang. Jawablah pertanyaan dengan sopan dan ringkas dalam bahasa Indonesia.' },
-              ...messages.map(m => ({ role: m.role, content: m.content })),
-              { role: 'user', content: userMessage }
-            ]
-          })
-        });
-
-        const data = await response.json();
-        if (data.choices && data.choices.length > 0) {
-          assistantReply = data.choices[0].message.content;
-        } else {
-          throw new Error('No valid response from OpenRouter');
-        }
-      } else if (selectedModel.provider === 'google') {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${selectedModel.id}:generateContent?key=${GOOGLE_API_KEY}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            contents: [
-              ...messages.map(m => ({
-                role: m.role === 'assistant' ? 'model' : 'user',
-                parts: [{ text: m.content }]
-              })),
-              {
-                role: 'user',
-                parts: [{ text: userMessage }]
-              }
-            ],
-            systemInstruction: {
-              parts: [{ text: 'Anda adalah asisten virtual yang ramah untuk Rohis Al Hafidh SMKN 1 Semarang. Jawablah pertanyaan dengan sopan dan ringkas dalam bahasa Indonesia.' }]
-            }
-          })
-        });
-
-        const data = await response.json();
-        if (data.candidates && data.candidates.length > 0) {
-          assistantReply = data.candidates[0].content.parts[0].text;
-        } else {
-          throw new Error('No valid response from Google AI Studio');
-        }
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: selectedModel.id,
+          messages: [...messages, { role: 'user', content: userMessage }].slice(-20),
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok || typeof data.content !== 'string') {
+        throw new Error(data.error || `Chat gagal (${response.status})`);
       }
-
-      setMessages(prev => [...prev, { role: 'assistant', content: assistantReply }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: data.content }]);
     } catch (error) {
       console.error('Chatbot error:', error);
       setMessages(prev => [...prev, { role: 'assistant', content: 'Maaf, terjadi kesalahan saat memproses pesan Anda. Coba model lain jika masalah berlanjut.' }]);
@@ -133,7 +84,7 @@ export function Chatbot() {
                     <Bot size={20} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-sm">RohisBot</h3>
+                    <h3 className="font-bold text-sm">SiHafidh</h3>
                     <p className="text-[10px] text-green-100 opacity-90">Tanya apa saja seputar Rohis!</p>
                   </div>
                 </div>
@@ -163,7 +114,7 @@ export function Chatbot() {
                     className="bg-slate-50 border-b border-slate-200 overflow-hidden"
                   >
                     <div className="p-3">
-                      <label className="text-xs font-semibold text-slate-600 mb-1.5 block">Pilih Model (Free)</label>
+                      <label className="text-xs font-semibold text-slate-600 mb-1.5 block">Pilih Model AI</label>
                       <select 
                         className="w-full text-xs p-2 rounded-md border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-green-500/50"
                         value={selectedModel.id}

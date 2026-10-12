@@ -31,6 +31,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!auth) {
+      setLoading(false);
+      return;
+    }
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(isAllowedAdmin(firebaseUser?.email ?? null) ? firebaseUser : null);
       setLoading(false);
@@ -48,6 +52,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       throw new Error('Daftar admin belum diatur. Isi VITE_ADMIN_EMAILS di file .env.');
     }
 
+    if (!auth) throw new Error('Konfigurasi Firebase web belum lengkap.');
     const result = await signInWithPopup(auth, googleAuthProvider);
     if (!isAllowedAdmin(result.user.email)) {
       await signOut(auth);
@@ -56,7 +61,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = async () => {
-    await signOut(auth);
+    if (auth) await signOut(auth);
   };
 
   const getToken = async () => {

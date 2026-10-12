@@ -1,0 +1,31 @@
+import { useEffect, useRef } from 'react';
+import anime from 'animejs';
+
+export function useAnimeObserver(animationConfig: anime.AnimeParams, threshold = 0.2) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          anime({
+            targets: ref.current,
+            ...animationConfig,
+          });
+          if (ref.current) observer.unobserve(ref.current);
+        }
+      },
+      { threshold }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => {
+      if (ref.current) observer.unobserve(ref.current);
+    };
+  }, [animationConfig, threshold]);
+
+  return ref;
+}

@@ -1,5 +1,5 @@
 import { getApp, getApps, initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, type Auth } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -12,12 +12,29 @@ const firebaseConfig = {
 
 export const isFirebaseConfigured = Boolean(
   firebaseConfig.apiKey &&
+    !firebaseConfig.apiKey.startsWith('YOUR_') &&
     firebaseConfig.authDomain &&
+    !firebaseConfig.authDomain.startsWith('YOUR_') &&
     firebaseConfig.projectId &&
-    firebaseConfig.appId
+    !firebaseConfig.projectId.startsWith('YOUR_') &&
+    firebaseConfig.appId &&
+    !firebaseConfig.appId.startsWith('YOUR_')
 );
 
-export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+export const app = getApps().length
+  ? getApp()
+  : initializeApp(
+      isFirebaseConfigured
+        ? firebaseConfig
+        : {
+            apiKey: 'mock-api-key',
+            authDomain: 'mock.firebaseapp.com',
+            projectId: 'mock-project',
+            storageBucket: 'mock.appspot.com',
+            messagingSenderId: '0000000000',
+            appId: '1:0000000000:web:0000000000',
+          }
+    );
+export const auth: Auth | null = isFirebaseConfigured ? getAuth(app) : null;
 export const googleAuthProvider = new GoogleAuthProvider();
 googleAuthProvider.setCustomParameters({ prompt: 'select_account' });
